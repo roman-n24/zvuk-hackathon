@@ -164,3 +164,14 @@ export function SidebarMenuButton({
     </button>
   );
 }
+
+export function SidebarSeparator({ className, ...props }) {
+  return (
+    <div
+      role="separator"
+      className={cn("mx-2 my-2 h-px bg-[#262626]", className)}
+      {...props}
+    />
+  );
+}
+
