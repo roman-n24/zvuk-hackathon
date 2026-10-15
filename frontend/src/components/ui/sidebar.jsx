@@ -91,6 +91,24 @@ export function SidebarTrigger({ className, onClick, ...props }) {
   );
 }
 
+export function SidebarHeader({ className, ...props }) {
+  return (
+    <div
+      className={cn("flex flex-col gap-2 p-3 pb-2", className)}
+      {...props}
+    />
+  );
+}
+
+export function SidebarFooter({ className, ...props }) {
+  return (
+    <div
+      className={cn("flex flex-col gap-2 p-3 pt-2 mt-auto", className)}
+      {...props}
+    />
+  );
+}
+
 export function SidebarContent({ className, ...props }) {
   return (
     <div
