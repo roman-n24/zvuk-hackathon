@@ -8,13 +8,10 @@ dist/
 .idea/
 .env
 .env.local
-<<<<<<< HEAD
 .venv/
 venv/
 .test-deps/
 __pycache__/
 *.pyc
 backend/uploads/
-=======
 docs/
->>>>>>> feat/sidebar
