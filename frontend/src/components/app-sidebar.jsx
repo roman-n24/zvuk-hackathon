@@ -28,9 +28,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { CreateCommunityDialog } from "./CreateCommunityDialog";
-import { JoinByCodeDialog } from "./JoinByCodeDialog";
-import { InviteFriendsDialog } from "./InviteFriendsDialog";
+import { Popup } from "./Popup";
 
 const items = [
   { title: "Главная", url: "/", icon: Home },
@@ -276,22 +274,23 @@ export function AppSidebar() {
         </button>
       </SidebarFooter>
 
-      {/* Модальное окно создания сообщества */}
-      <CreateCommunityDialog
+      {/* Единый компонент всплывающих окон (popup) */}
+      <Popup
+        type="create"
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
         onCreateCommunity={handleCreateCommunity}
       />
 
-      {/* Модальное окно вступления по коду */}
-      <JoinByCodeDialog
+      <Popup
+        type="join"
         open={isJoinOpen}
         onOpenChange={setIsJoinOpen}
         onJoinByCode={handleJoinByCode}
       />
 
-      {/* Модальное окно приглашения на волну */}
-      <InviteFriendsDialog
+      <Popup
+        type="invite"
         open={isInviteOpen}
         onOpenChange={setIsInviteOpen}
       />
