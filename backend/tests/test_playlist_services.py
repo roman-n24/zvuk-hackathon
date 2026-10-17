@@ -8,6 +8,7 @@ from sqlalchemy import create_engine, event, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
+from fastapi import HTTPException
 
 from app.database import Base
 from app.models import (
@@ -19,12 +20,14 @@ from app.models import (
     QueueItemState,
     Room,
     RoomMember,
+    RoomPlaybackState,
     Track,
     TrackSource,
     User,
     Vote,
     VoteEvent,
 )
+from app.routers.communities import PlaybackControlRequest, control_playback
 from app.services import (
     ForbiddenError,
     cast_vote,
@@ -263,6 +266,42 @@ class PlaylistServiceTests(unittest.TestCase):
 
         with self.assertRaises(IntegrityError):
             self.session.commit()
+
+    def test_moderator_controls_authoritative_room_playback(self) -> None:
+        self._round()
+
+        playing = control_playback(
+            self.room.id,
+            PlaybackControlRequest(action="play", track_id=self.member_track.id),
+            self.owner,
+            self.session,
+        )
+        self.assertEqual(playing["status"], "playing")
+        self.assertEqual(playing["track_id"], str(self.member_track.id))
+
+        paused = control_playback(
+            self.room.id,
+            PlaybackControlRequest(action="pause"),
+            self.owner,
+            self.session,
+        )
+        self.assertEqual(paused["status"], "paused")
+        state = self.session.get(RoomPlaybackState, self.room.id)
+        self.assertEqual(state.updated_by_user_id, self.owner.id)
+        self.assertGreaterEqual(state.revision, 2)
+
+    def test_regular_member_cannot_control_room_playback(self) -> None:
+        self._round()
+
+        with self.assertRaises(HTTPException) as raised:
+            control_playback(
+                self.room.id,
+                PlaybackControlRequest(action="play", track_id=self.member_track.id),
+                self.member,
+                self.session,
+            )
+
+        self.assertEqual(raised.exception.status_code, 403)
 
 
 if __name__ == "__main__":

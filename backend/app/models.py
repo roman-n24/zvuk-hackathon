@@ -18,6 +18,7 @@ from sqlalchemy import (
     Enum,
     ForeignKey,
     ForeignKeyConstraint,
+    Float,
     Index,
     Integer,
     SmallInteger,
@@ -183,6 +184,41 @@ class RoomMember(Base):
     user: Mapped[User] = relationship(back_populates="memberships")
 
     __table_args__ = (Index("ix_room_members_user_id", "user_id"),)
+
+
+class RoomPlaybackState(Base):
+    """Server-authoritative playback clock for every room."""
+
+    __tablename__ = "room_playback_states"
+
+    room_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("rooms.id", ondelete="CASCADE"), primary_key=True
+    )
+    track_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("tracks.id", ondelete="SET NULL")
+    )
+    status: Mapped[str] = mapped_column(
+        String(16), server_default=text("'stopped'"), nullable=False
+    )
+    position_seconds: Mapped[float] = mapped_column(
+        Float, server_default=text("0"), nullable=False
+    )
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    revision: Mapped[int] = mapped_column(
+        Integer, server_default=text("0"), nullable=False
+    )
+    updated_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+    __table_args__ = (
+        CheckConstraint("status IN ('stopped', 'playing', 'paused')", name="ck_room_playback_status"),
+        CheckConstraint("position_seconds >= 0", name="ck_room_playback_position_nonnegative"),
+        CheckConstraint("revision >= 0", name="ck_room_playback_revision_nonnegative"),
+    )
 
 
 class Track(Base):

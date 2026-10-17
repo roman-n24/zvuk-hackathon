@@ -11,7 +11,7 @@ import asyncio
 import uuid
 from pathlib import Path
 
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, Query, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -43,8 +43,8 @@ async def startup_event():
 
 
 @app.websocket("/ws/communities/{room_id}")
-async def root_ws_community(websocket: WebSocket, room_id: uuid.UUID):
-    await ws_community(websocket, room_id)
+async def root_ws_community(websocket: WebSocket, room_id: uuid.UUID, token: str = Query(default="")):
+    await ws_community(websocket, room_id, token)
 
 # ── CORS ────────────────────────────────────────────────────────────────────
 # allow_origins=["*"] + allow_credentials не работают вместе в браузере.

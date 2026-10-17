@@ -141,7 +141,11 @@ function TrackRow({ track, rank, isPlaying, canModerate, onPlay, onVote, onFavor
           : <Minus size={10} className="text-neutral-700 inline" />}
       </span>
 
-      <div className="relative cursor-pointer shrink-0" onClick={() => onPlay(track.id)}>
+      <div
+        className={cn("relative shrink-0", canModerate ? "cursor-pointer" : "cursor-not-allowed")}
+        onClick={() => canModerate && onPlay(track.id)}
+        title={canModerate ? "Включить для всех" : "Воспроизведением управляет модератор"}
+      >
         <TrackThumb gradient={track.gradient} size={44} />
         <div className={cn(
           "absolute inset-0 rounded-xl bg-black/60 flex items-center justify-center transition-opacity",
@@ -271,6 +275,9 @@ export function PlaylistPage() {
   const [history, setHistory] = useState([]);
   const [activeTab, setActiveTab] = useState("queue");
   const [player, setPlayer] = useState({ trackId: null, playing: false, progress: 0, elapsed: 0 });
+  const [sharedPlayback, setSharedPlayback] = useState(null);
+  const [needsAudioUnlock, setNeedsAudioUnlock] = useState(false);
+  const sharedPlaybackRef = useRef(null);
   const [nextId, setNextId] = useState(200);
 
   // Модальные окна
@@ -293,6 +300,11 @@ export function PlaylistPage() {
   // Тост-уведомления
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
+  const showToast = useCallback((msg) => {
+    setToast(msg);
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 3000);
+  }, []);
 
   // Реф для смены обложки
   const avatarInputRef = useRef(null);
@@ -341,6 +353,10 @@ export function PlaylistPage() {
         if (!data?.community) return;
 
         const comm = data.community;
+        if (data.playback) {
+          sharedPlaybackRef.current = data.playback;
+          setSharedPlayback(data.playback);
+        }
         setPlaylist((prev) => ({
           ...prev,
           id: comm.id,
@@ -467,13 +483,21 @@ export function PlaylistPage() {
       if (!isMounted) return;
       try {
         const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-        const wsUrl = `${protocol}//${window.location.host}/api/ws/communities/${currentRoomId}`;
+        const token = localStorage.getItem("token") || "";
+        const wsUrl = `${protocol}//${window.location.host}/api/ws/communities/${currentRoomId}?token=${encodeURIComponent(token)}`;
         ws = new WebSocket(wsUrl);
 
         ws.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
-            if (data?.type === "room_updated") {
+            if (data?.type === "playback_state" && data.state) {
+              sharedPlaybackRef.current = data.state;
+              setSharedPlayback(data.state);
+            } else if (data?.type === "room_updated") {
+              if (data.playback) {
+                sharedPlaybackRef.current = data.playback;
+                setSharedPlayback(data.playback);
+              }
               fetchCommunityData(currentRoomId);
             }
           } catch {}
@@ -538,79 +562,143 @@ export function PlaylistPage() {
     return () => clearInterval(id);
   }, []);
 
-  // Плеер: методы управления воспроизведением с реальным звуком
-  const playTrack = useCallback((trackId) => {
-    const track = tracks.find((t) => t.id === trackId);
-    if (!track) return;
-
-    if (player.trackId === trackId && player.playing) {
-      audioService.pause();
-      setPlayer((p) => ({ ...p, playing: false }));
-    } else {
-      audioService.play({
-        ...track,
-        room_id: currentRoomId,
-        library_key: track.library_key || "dawn",
-      });
-      setPlayer({ trackId, playing: true, progress: 0, elapsed: 0 });
+  const sendPlaybackControl = useCallback(async (action, trackId = null, positionSeconds = 0) => {
+    if (!currentRoomId || !canModerate) {
+      showToast("Воспроизведением управляет модератор");
+      return null;
     }
-  }, [tracks, player.trackId, player.playing, currentRoomId]);
+    const token = localStorage.getItem("token");
+    const response = await fetch(`/api/communities/${currentRoomId}/playback/control`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ action, track_id: trackId, position_seconds: positionSeconds }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      showToast(data.detail || "Не удалось синхронизировать плеер");
+      return null;
+    }
+    sharedPlaybackRef.current = data;
+    setSharedPlayback(data);
+    return data;
+  }, [currentRoomId, canModerate, showToast]);
+
+  // Все команды отправляются серверу; локальный звук меняется только после
+  // получения подтверждённого состояния комнаты.
+  const playTrack = useCallback((trackId) => {
+    if (player.trackId === trackId && player.playing) {
+      sendPlaybackControl("pause", trackId, player.elapsed);
+    } else {
+      const resumeAt = player.trackId === trackId ? player.elapsed : 0;
+      sendPlaybackControl("play", trackId, resumeAt);
+    }
+  }, [player.trackId, player.playing, player.elapsed, sendPlaybackControl]);
 
   const playerNext = useCallback(() => {
+    if (!canModerate) return;
     const s = sortedTracks(tracks);
     if (!s.length) return;
     const idx = s.findIndex((t) => t.id === player.trackId);
     const next = s[(idx + 1) % s.length];
-    audioService.play({
-      ...next,
-      room_id: currentRoomId,
-      library_key: next.library_key || "dawn",
-    });
-    setPlayer({ trackId: next.id, playing: true, progress: 0, elapsed: 0 });
-  }, [tracks, player.trackId, currentRoomId]);
+    sendPlaybackControl("play", next.id, 0);
+  }, [canModerate, tracks, player.trackId, sendPlaybackControl]);
 
   const playerPrev = useCallback(() => {
+    if (!canModerate) return;
     const s = sortedTracks(tracks);
     if (!s.length) return;
     const idx = s.findIndex((t) => t.id === player.trackId);
     const prev = s[(idx - 1 + s.length) % s.length];
-    audioService.play({
-      ...prev,
-      room_id: currentRoomId,
-      library_key: prev.library_key || "dawn",
-    });
-    setPlayer({ trackId: prev.id, playing: true, progress: 0, elapsed: 0 });
-  }, [tracks, player.trackId, currentRoomId]);
+    sendPlaybackControl("play", prev.id, 0);
+  }, [canModerate, tracks, player.trackId, sendPlaybackControl]);
+
+  const enableLocalSound = useCallback(async () => {
+    const state = sharedPlaybackRef.current;
+    const track = tracks.find((t) => t.id === state?.track_id);
+    if (!track) return;
+    try {
+      await audioService.play({ ...track, room_id: currentRoomId, library_key: track.library_key || "dawn" });
+      audioService.seek(Number(state.position_seconds) || 0);
+      if (state.status !== "playing") audioService.pause();
+      setNeedsAudioUnlock(false);
+    } catch {
+      setNeedsAudioUnlock(true);
+    }
+  }, [tracks, currentRoomId]);
 
   const togglePlay = () => {
-    if (!player.trackId && tracks.length > 0) {
+    if (!canModerate) {
+      enableLocalSound();
+    } else if (!player.trackId && tracks.length > 0) {
       playTrack(sortedTracks(tracks)[0].id);
     } else if (player.playing) {
-      audioService.pause();
-      setPlayer((p) => ({ ...p, playing: false }));
+      sendPlaybackControl("pause", player.trackId, player.elapsed);
     } else if (player.trackId) {
-      const track = tracks.find((t) => t.id === player.trackId);
-      if (track) {
-        audioService.play({
-          ...track,
-          room_id: currentRoomId,
-          library_key: track.library_key || "dawn",
-        });
-        setPlayer((p) => ({ ...p, playing: true }));
-      }
+      sendPlaybackControl("play", player.trackId, player.elapsed);
     }
   };
 
   const seekPlayer = (e) => {
+    if (!canModerate || !player.trackId) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const pct = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
     const currentT = tracks.find((t) => t.id === player.trackId);
     const dur = currentT?.duration_seconds || 45;
-    audioService.seek((pct / 100) * dur);
+    sendPlaybackControl("seek", player.trackId, (pct / 100) * dur);
   };
 
   const currentTrack = tracks.find((t) => t.id === player.trackId) || null;
   const fmtTime = (sec) => `${Math.floor(sec / 60)}:${fmt2(Math.floor(sec % 60))}`;
+
+  // Применяем серверные часы плеера. Периодический bootstrap также исправляет
+  // накопившееся между устройствами расхождение больше одной секунды.
+  useEffect(() => {
+    if (!sharedPlayback) return;
+    sharedPlaybackRef.current = sharedPlayback;
+    const track = tracks.find((t) => t.id === sharedPlayback.track_id);
+    const target = Number(sharedPlayback.position_seconds) || 0;
+
+    if (!track) {
+      if (sharedPlayback.status === "stopped") audioService.stop();
+      return;
+    }
+
+    let cancelled = false;
+    const apply = async () => {
+      try {
+        const sameTrack = audioService.currentTrack?.id === track.id;
+        if (sharedPlayback.status === "playing") {
+          if (!sameTrack || !audioService.isPlaying) {
+            await audioService.play({ ...track, room_id: currentRoomId, library_key: track.library_key || "dawn" });
+            if (!cancelled) audioService.seek(target);
+          } else if (Math.abs(audioService.seconds - target) > 1.25) {
+            audioService.seek(target);
+          }
+          if (!cancelled) setNeedsAudioUnlock(false);
+        } else {
+          if (sameTrack) {
+            audioService.pause();
+            audioService.seek(target);
+          } else {
+            audioService.stop();
+            setPlayer({
+              trackId: track.id,
+              playing: false,
+              elapsed: target,
+              progress: track.duration_seconds ? (target / track.duration_seconds) * 100 : 0,
+            });
+          }
+        }
+      } catch (error) {
+        if (!cancelled && error?.name === "NotAllowedError") setNeedsAudioUnlock(true);
+      }
+    };
+    apply();
+    return () => { cancelled = true; };
+  }, [sharedPlayback, tracks, currentRoomId]);
 
   // Подписка на аудио движок
   useEffect(() => {
@@ -631,12 +719,6 @@ export function PlaylistPage() {
       unsubscribe();
     };
   }, [playerNext]);
-
-  const showToast = useCallback((msg) => {
-    setToast(msg);
-    clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 3000);
-  }, []);
 
   const handleToggleFavorite = async (trackId) => {
     const t = tracks.find((x) => x.id === trackId);
@@ -1180,7 +1262,11 @@ export function PlaylistPage() {
 
       {/* ═══ МИНИ-ПЛЕЕР ═════════════════════════════════════════════════════ */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#0e0e0e]/95 backdrop-blur-xl border-t border-[#262626]">
-        <div className="h-0.5 w-full bg-neutral-800 cursor-pointer" onClick={seekPlayer}>
+        <div
+          className={cn("h-0.5 w-full bg-neutral-800", canModerate ? "cursor-pointer" : "cursor-not-allowed")}
+          onClick={seekPlayer}
+          title={canModerate ? "Перемотать для всех" : "Перемоткой управляет модератор"}
+        >
           <div className="h-full bg-[#a3e635] transition-[width] duration-500" style={{ width: `${player.progress}%` }} />
         </div>
         <div className="max-w-none px-6 py-3 flex items-center gap-4 flex-wrap">
@@ -1199,21 +1285,29 @@ export function PlaylistPage() {
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
-            <button onClick={playerPrev} className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white transition-colors rounded-lg hover:bg-neutral-800 cursor-pointer">
+            <button disabled={!canModerate} onClick={playerPrev} className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white transition-colors rounded-lg hover:bg-neutral-800 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
               <SkipBack size={16} />
             </button>
             <button
               onClick={togglePlay}
               className="w-10 h-10 flex items-center justify-center rounded-full bg-[#1c231d] border border-[#2e402d] text-white hover:bg-[#243025] hover:border-[#3c543b] transition-colors cursor-pointer"
+              title={!canModerate ? (needsAudioUnlock ? "Подключить звук" : "Синхронизировать звук") : "Управлять воспроизведением для всех"}
             >
               {player.playing ? <Pause size={17} className="fill-[#a3e635] text-[#a3e635]" /> : <Play size={17} className="fill-[#a3e635] text-[#a3e635] ml-0.5" />}
             </button>
-            <button onClick={playerNext} className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white transition-colors rounded-lg hover:bg-neutral-800 cursor-pointer">
+            <button disabled={!canModerate} onClick={playerNext} className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white transition-colors rounded-lg hover:bg-neutral-800 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
               <SkipForward size={16} />
             </button>
           </div>
 
-          <span className="text-xs text-neutral-500 tabular-nums shrink-0">{fmtTime(player.elapsed)} / 4:00</span>
+          <span className="text-xs text-neutral-500 tabular-nums shrink-0">
+            {fmtTime(player.elapsed)} / {fmtTime(currentTrack?.duration_seconds || 0)}
+          </span>
+          {!canModerate && (
+            <span className={cn("text-[11px] shrink-0", needsAudioUnlock ? "text-[#a3e635]" : "text-neutral-500")}>
+              {needsAudioUnlock ? "Нажмите ▶, чтобы подключить звук" : "Потоком управляет модератор"}
+            </span>
+          )}
           <NextBadge tracks={tracks} currentId={player.trackId} />
         </div>
       </div>

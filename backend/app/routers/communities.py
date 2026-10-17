@@ -20,9 +20,9 @@ from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.auth import create_access_token, get_current_user
+from app.auth import create_access_token, decode_access_token, get_current_user
 from app.config import BACKEND_DIR, settings
-from app.database import get_db
+from app.database import SessionLocal, get_db
 from app.network import frontend_base_url
 from app.models import (
     Favorite,
@@ -35,6 +35,7 @@ from app.models import (
     QueueItemState,
     Room,
     RoomMember,
+    RoomPlaybackState,
     RoundStatus,
     RoundTopSnapshot,
     Track,
@@ -126,9 +127,16 @@ manager = ConnectionManager()
 
 
 @router.websocket("/ws/communities/{room_id}")
-async def ws_community(websocket: WebSocket, room_id: uuid.UUID):
+async def ws_community(websocket: WebSocket, room_id: uuid.UUID, token: str = Query(default="")):
+    user_id = decode_access_token(token) if token else None
+    with SessionLocal() as db:
+        if user_id is None or db.get(User, user_id) is None or db.get(RoomMember, (room_id, user_id)) is None:
+            await websocket.close(code=4401, reason="Authentication required")
+            return
+        initial_playback = _serialize_playback(db, room_id)
     room_str = str(room_id)
     await manager.connect(websocket, room_str)
+    await websocket.send_json({"type": "playback_state", "state": initial_playback})
     try:
         while True:
             data = await websocket.receive_text()
@@ -207,6 +215,69 @@ class RoleRequest(BaseModel):
 
 class CompleteRequest(BaseModel):
     queue_version: int = Field(ge=0)
+
+
+class PlaybackControlRequest(BaseModel):
+    action: str
+    track_id: uuid.UUID | None = None
+    position_seconds: float = Field(default=0, ge=0)
+
+
+def _utc(value: datetime | None) -> datetime | None:
+    if value is None:
+        return None
+    return value if value.tzinfo is not None else value.replace(tzinfo=timezone.utc)
+
+
+def _playback_position(state: RoomPlaybackState | None, now: datetime | None = None) -> float:
+    if state is None:
+        return 0.0
+    position = float(state.position_seconds or 0)
+    if state.status == "playing" and state.started_at is not None:
+        position += max(0.0, ((now or datetime.now(timezone.utc)) - _utc(state.started_at)).total_seconds())
+    return position
+
+
+def _serialize_playback(db: Session, room_id: uuid.UUID) -> dict:
+    now = datetime.now(timezone.utc)
+    state = db.get(RoomPlaybackState, room_id)
+    position = _playback_position(state, now)
+    track = db.get(Track, state.track_id) if state and state.track_id else None
+    if track and track.duration_seconds > 0:
+        position = min(position, float(track.duration_seconds))
+    return {
+        "room_id": str(room_id),
+        "track_id": str(state.track_id) if state and state.track_id else None,
+        "status": state.status if state else "stopped",
+        "position_seconds": round(position, 3),
+        "revision": state.revision if state else 0,
+        "server_time": now.isoformat(),
+        "updated_by_user_id": str(state.updated_by_user_id) if state and state.updated_by_user_id else None,
+    }
+
+
+def _set_playback(
+    db: Session,
+    room_id: uuid.UUID,
+    user_id: uuid.UUID,
+    *,
+    status: str,
+    track_id: uuid.UUID | None,
+    position_seconds: float,
+) -> RoomPlaybackState:
+    state = db.scalar(
+        select(RoomPlaybackState).where(RoomPlaybackState.room_id == room_id).with_for_update()
+    )
+    if state is None:
+        state = RoomPlaybackState(room_id=room_id)
+        db.add(state)
+    state.track_id = track_id
+    state.status = status
+    state.position_seconds = max(0.0, float(position_seconds))
+    state.started_at = datetime.now(timezone.utc) if status == "playing" else None
+    state.updated_by_user_id = user_id
+    state.revision = int(state.revision or 0) + 1
+    return state
 
 
 def _clean(value: str, limit: int) -> str:
@@ -608,6 +679,7 @@ def _community_state(db: Session, room: Room, membership: RoomMember, user: User
             for member_user, member_row in members
         ],
         "library": LIBRARY,
+        "playback": _serialize_playback(db, room.id),
         "pending_count": sum(track["status"] == "pending" for track in tracks_payload),
         "stats": {
             "votes": db.scalar(select(func.count()).select_from(Vote).join(QueueItem).where(QueueItem.round_id == playlist_round.id)),
@@ -1010,18 +1082,19 @@ def moderate_track(
     return {"status": track.moderation_status.value, "queue_state": item.state.value if item else "removed"}
 
 
-@router.post("/communities/{room_id}/tracks/{track_id}/play")
-def play_track(
-    room_id: uuid.UUID,
-    track_id: uuid.UUID,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    _member(db, room_id, user.id)
+def _start_room_track(
+    db: Session, room_id: uuid.UUID, track_id: uuid.UUID, user: User, position_seconds: float = 0
+) -> QueueItem:
     room = db.scalar(select(Room).where(Room.id == room_id).with_for_update())
     playlist_round = _active_round(db, room_id)
     item = _queue_item(db, playlist_round, track_id)
-    if item is None or item.state == QueueItemState.REMOVED:
+    track = db.get(Track, track_id)
+    if (
+        item is None
+        or item.state == QueueItemState.REMOVED
+        or track is None
+        or track.moderation_status != ModerationStatus.APPROVED
+    ):
         raise HTTPException(status_code=404, detail="Трек не найден в очереди")
     current = db.scalar(select(QueueItem).where(QueueItem.round_id == playlist_round.id, QueueItem.state == QueueItemState.PLAYING).with_for_update())
     if current is not None and current.id != item.id:
@@ -1034,9 +1107,90 @@ def play_track(
         item.completed_at = None
         db.add(PlaybackHistory(queue_item_id=item.id, played_by_user_id=user.id, queue_version=item.version, started_at=item.started_at))
         room.queue_version += 1
+    duration = float(track.duration_seconds or MAX_AUDIO_DURATION_SECONDS)
+    _set_playback(
+        db,
+        room_id,
+        user.id,
+        status="playing",
+        track_id=track_id,
+        position_seconds=min(max(0.0, position_seconds), duration),
+    )
+    return item
+
+
+@router.get("/communities/{room_id}/playback")
+def get_playback_state(
+    room_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    _member(db, room_id, user.id)
+    return _serialize_playback(db, room_id)
+
+
+@router.post("/communities/{room_id}/playback/control")
+def control_playback(
+    room_id: uuid.UUID,
+    payload: PlaybackControlRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    membership = _member(db, room_id, user.id)
+    if not _moderator(membership):
+        raise HTTPException(status_code=403, detail="Воспроизведением управляет модератор")
+
+    action = payload.action.lower().strip()
+    if action == "play":
+        if payload.track_id is None:
+            raise HTTPException(status_code=400, detail="Не выбран трек")
+        _start_room_track(db, room_id, payload.track_id, user, payload.position_seconds)
+    elif action in {"pause", "stop", "seek"}:
+        state = db.scalar(
+            select(RoomPlaybackState).where(RoomPlaybackState.room_id == room_id).with_for_update()
+        )
+        if state is None or state.track_id is None:
+            raise HTTPException(status_code=409, detail="Сейчас ничего не воспроизводится")
+        current_position = _playback_position(state)
+        track = db.get(Track, state.track_id)
+        duration = float(track.duration_seconds or MAX_AUDIO_DURATION_SECONDS) if track else MAX_AUDIO_DURATION_SECONDS
+        if action == "pause":
+            _set_playback(db, room_id, user.id, status="paused", track_id=state.track_id, position_seconds=min(current_position, duration))
+        elif action == "stop":
+            _set_playback(db, room_id, user.id, status="stopped", track_id=state.track_id, position_seconds=0)
+        else:
+            _set_playback(
+                db,
+                room_id,
+                user.id,
+                status=state.status,
+                track_id=state.track_id,
+                position_seconds=min(payload.position_seconds, duration),
+            )
+    else:
+        raise HTTPException(status_code=400, detail="Неизвестная команда плеера")
+
     db.commit()
-    manager.notify_room(room_id, action="playback", extra={"track_id": str(track_id)})
-    return {"ok": True, "queue_version": item.version}
+    playback = _serialize_playback(db, room_id)
+    manager.notify_room(room_id, action="playback", extra={"playback": playback})
+    return playback
+
+
+@router.post("/communities/{room_id}/tracks/{track_id}/play")
+def play_track(
+    room_id: uuid.UUID,
+    track_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    membership = _member(db, room_id, user.id)
+    if not _moderator(membership):
+        raise HTTPException(status_code=403, detail="Воспроизведением управляет модератор")
+    item = _start_room_track(db, room_id, track_id, user)
+    db.commit()
+    playback = _serialize_playback(db, room_id)
+    manager.notify_room(room_id, action="playback", extra={"playback": playback})
+    return {"ok": True, "queue_version": item.version, "playback": playback}
 
 
 @router.post("/communities/{room_id}/tracks/{track_id}/complete")
@@ -1047,14 +1201,20 @@ def complete_track(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    _member(db, room_id, user.id)
+    membership = _member(db, room_id, user.id)
+    if not _moderator(membership):
+        raise HTTPException(status_code=403, detail="Воспроизведением управляет модератор")
     item = _queue_item(db, _active_round(db, room_id), track_id)
     if item is None:
         raise HTTPException(status_code=404, detail="Элемент очереди не найден")
     try:
         previous, next_item = complete_current_and_play_next(db, room_id, user.id, expected_queue_item_id=item.id, expected_version=payload.queue_version)
+        if next_item:
+            _set_playback(db, room_id, user.id, status="playing", track_id=next_item.track_id, position_seconds=0)
+        else:
+            _set_playback(db, room_id, user.id, status="stopped", track_id=track_id, position_seconds=0)
         db.commit()
-        manager.notify_room(room_id, action="playback")
+        manager.notify_room(room_id, action="playback", extra={"playback": _serialize_playback(db, room_id)})
         return {"completed": previous is not None, "next_track": {"id": next_item.track_id} if next_item else None}
     except (ConflictError, ForbiddenError, NotFoundError) as error:
         db.rollback()

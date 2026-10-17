@@ -107,7 +107,15 @@ class SoundEngine {
       this.audio = audio;
       try {
         await audio.play();
-      } catch {
+      } catch (error) {
+        this.isPlaying = false;
+        this.notify();
+        // Browsers require one explicit click before starting audible media.
+        // Let the UI offer a "connect sound" button instead of pretending
+        // that playback started locally.
+        if (error?.name === "NotAllowedError") throw error;
+        this.isPlaying = true;
+        this.started = performance.now();
         this.startSynth();
       }
     } else {
