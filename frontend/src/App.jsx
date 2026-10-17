@@ -108,13 +108,8 @@ function AppContent() {
         })
         .catch(() => {});
     }
-<<<<<<< HEAD
-  }, [location.search, navigate]);
-  
-=======
   }, [location.pathname, location.search, navigate]);
 
->>>>>>> a9756f3b4afffd308257669cc318421c5ac1eafd
   return (
     <LibraryContext.Provider
       value={{
@@ -132,22 +127,8 @@ function AppContent() {
             <Route path="/login" element={<RegisterPage />} />
             <Route path="/auth" element={<RegisterPage />} />
             <Route path="/playlist" element={<PlaylistPage />} />
-<<<<<<< HEAD
-            <Route
-              path="/library"
-              element={
-                <LibraryPage
-                  tracks={tracks}
-                  genres={genres}
-                  isLoading={isLoadingTracks}
-                  refreshTracks={fetchLibraryTracks}
-                />
-              }
-            />
-=======
             <Route path="/party" element={<PartyPage />} />
             <Route path="/library" element={<LibraryPage />} />
->>>>>>> a9756f3b4afffd308257669cc318421c5ac1eafd
             <Route path="/favorites" element={<FavoritesPage />} />
             <Route path="/community/:id" element={<PlaylistPage />} />
             <Route path="/community/:id/party" element={<PartyPage />} />

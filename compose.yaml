@@ -27,6 +27,8 @@ services:
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     volumes:
+      - ./backend/app:/app/app
+      - ./backend/alembic:/app/alembic
       - uploads_data:/app/uploads
     depends_on:
       db:

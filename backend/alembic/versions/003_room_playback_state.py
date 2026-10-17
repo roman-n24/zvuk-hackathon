@@ -9,7 +9,7 @@ import sqlalchemy as sa
 
 
 revision = "003_room_playback_state"
-down_revision = "002_auth_and_playlists"
+down_revision = "003_add_library_tracks"
 branch_labels = None
 depends_on = None
 

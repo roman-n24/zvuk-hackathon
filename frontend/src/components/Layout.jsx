@@ -8,17 +8,16 @@ import { cn } from "@/lib/utils";
 
 export default function Layout({ children }) {
   const location = useLocation();
-  const isPlaylistPage =
-    location.pathname === "/playlist" ||
-    location.pathname.startsWith("/playlist/") ||
-<<<<<<< HEAD
-    location.pathname.startsWith("/community");
-  const isLibraryPage = location.pathname === "/library";
-=======
-    location.pathname.startsWith("/community") ||
+  const isPartyPage =
     location.pathname === "/party" ||
-    location.pathname.startsWith("/party");
->>>>>>> a9756f3b4afffd308257669cc318421c5ac1eafd
+    location.pathname.startsWith("/party") ||
+    location.pathname.endsWith("/party");
+  const isPlaylistPage =
+    !isPartyPage &&
+    (location.pathname === "/playlist" ||
+      location.pathname.startsWith("/playlist/") ||
+      location.pathname.startsWith("/community"));
+  const isLibraryPage = location.pathname === "/library";
 
   return (
     <SidebarProvider className="bg-[#121212] text-white">
@@ -37,7 +36,7 @@ export default function Layout({ children }) {
             <CommunitySwitcher />
           ) : isLibraryPage ? (
             <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1e261d] border border-[#2e402d] text-[#a3e635] text-xs font-semibold uppercase tracking-wider mb-5">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#242016] border border-[#4a3f24] text-[#FDE047] text-xs font-semibold uppercase tracking-wider mb-5">
                 <Headphones className="h-3.5 w-3.5" />
                 <span>Студийная фонотека Volna Studio</span>
               </div>

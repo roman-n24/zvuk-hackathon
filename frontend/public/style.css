@@ -11,7 +11,7 @@
   --muted: #8b998b;
   --lime: #b9ee79;
   --lime-dim: #26371e;
-  font-family: Manrope, 'DM Sans', system-ui, sans-serif;
+  font-family: Georgia, Cambria, "Times New Roman", Times, serif;
   color: var(--text);
   background: var(--bg);
   color-scheme: dark;

@@ -594,20 +594,14 @@ class RoundTopSnapshot(Base):
     )
 
 
-<<<<<<< HEAD
 class LibraryTrack(Base):
     """Studio track catalog available for members to add to community playlists."""
 
     __tablename__ = "library_tracks"
-=======
-class PartySession(Base):
-    __tablename__ = "party_sessions"
->>>>>>> a9756f3b4afffd308257669cc318421c5ac1eafd
 
     id: Mapped[uuid.UUID] = mapped_column(
         Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
-<<<<<<< HEAD
     key: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     artist: Mapped[str] = mapped_column(
@@ -632,7 +626,22 @@ class PartySession(Base):
         Text, server_default=text("''"), nullable=False
     )
     file: Mapped[str | None] = mapped_column(String(255))
-=======
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+    __table_args__ = (
+        Index("ix_library_tracks_key", "key"),
+        Index("ix_library_tracks_genre", "genre"),
+    )
+
+
+class PartySession(Base):
+    __tablename__ = "party_sessions"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     community_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid(as_uuid=True), ForeignKey("rooms.id", ondelete="SET NULL"), nullable=True
     )
@@ -703,18 +712,10 @@ class PartyQueueItem(Base):
         Uuid(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
     score: Mapped[int] = mapped_column(Integer, server_default=text("0"), default=0, nullable=False)
->>>>>>> a9756f3b4afffd308257669cc318421c5ac1eafd
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
 
-<<<<<<< HEAD
-    __table_args__ = (
-        Index("ix_library_tracks_key", "key"),
-        Index("ix_library_tracks_genre", "genre"),
-    )
-
-=======
     party: Mapped[PartySession] = relationship(back_populates="queue_items")
     added_by_user: Mapped[User | None] = relationship(foreign_keys=[added_by_user_id])
     votes: Mapped[list[PartyVote]] = relationship(
@@ -753,4 +754,3 @@ class PartyVote(Base):
         UniqueConstraint("party_queue_item_id", "user_id", name="uq_party_votes_item_user"),
         Index("ix_party_votes_item_id", "party_queue_item_id"),
     )
->>>>>>> a9756f3b4afffd308257669cc318421c5ac1eafd

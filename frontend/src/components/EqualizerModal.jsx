@@ -24,8 +24,8 @@ const PRESETS = [
 ];
 
 const BANDS = [
-  { id: "bass", label: "BASS", freq: "60 Hz", color: "from-lime-500 to-emerald-400" },
-  { id: "mid", label: "MID", freq: "1 kHz", color: "from-amber-400 to-yellow-300" },
+  { id: "bass", label: "BASS", freq: "60 Hz", color: "from-yellow-400 to-amber-400" },
+  { id: "mid", label: "MID", freq: "1 kHz", color: "from-amber-300 to-yellow-200" },
   { id: "treble", label: "TREBLE", freq: "8 kHz", color: "from-violet-400 to-purple-400" },
 ];
 
@@ -97,7 +97,7 @@ function VerticalSlider({ band, value, onChange, onReset }) {
           {/* Заполнение полосы */}
           {value >= 0 ? (
             <div
-              className="absolute left-0 right-0 bg-[#a3e635]/80 transition-[height,bottom] duration-75 shadow-[0_0_8px_rgba(163,230,53,0.5)]"
+              className="absolute left-0 right-0 bg-[#FDE047]/90 transition-[height,bottom] duration-75 shadow-[0_0_8px_rgba(253,224,71,0.5)]"
               style={{
                 bottom: "50%",
                 height: `${((value) / 12) * 50}%`,
@@ -119,7 +119,7 @@ function VerticalSlider({ band, value, onChange, onReset }) {
           className={cn(
             "absolute w-7 h-5 rounded-lg border flex items-center justify-center transition-transform pointer-events-none shadow-lg",
             value !== 0
-              ? "bg-[#1c231d] border-[#a3e635] text-[#a3e635] shadow-[0_0_10px_rgba(163,230,53,0.3)]"
+              ? "bg-[#242016] border-[#FDE047] text-[#FDE047] shadow-[0_0_10px_rgba(253,224,71,0.3)]"
               : "bg-[#222] border-[#3a3a3a] text-neutral-400 group-hover:border-neutral-500"
           )}
           style={{
@@ -136,7 +136,7 @@ function VerticalSlider({ band, value, onChange, onReset }) {
           className={cn(
             "text-xs font-mono font-bold px-2 py-0.5 rounded-md tabular-nums inline-block transition-colors",
             value > 0
-              ? "text-[#a3e635] bg-[#1c231d] border border-[#2e402d]"
+              ? "text-[#FDE047] bg-[#242016] border border-[#4a3f24]"
               : value < 0
               ? "text-red-400 bg-red-950/40 border border-red-900/40"
               : "text-neutral-400 bg-[#171717] border border-[#242424]"
@@ -206,11 +206,11 @@ export function EqualizerModal({ open, onOpenChange }) {
         const x = i * (barWidth + gap);
         const y = height - barHeight;
 
-        // Gradient: Lime to Purple
+        // Gradient: Light Yellow to Amber
         const grad = ctx.createLinearGradient(0, height, 0, 0);
-        grad.addColorStop(0, "#a3e635");
-        grad.addColorStop(0.65, "#84cc16");
-        grad.addColorStop(1, "#c084fc");
+        grad.addColorStop(0, "#FEF08A");
+        grad.addColorStop(0.65, "#FDE047");
+        grad.addColorStop(1, "#F59E0B");
 
         ctx.fillStyle = grad;
 
@@ -260,18 +260,18 @@ export function EqualizerModal({ open, onOpenChange }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px] bg-[#121212] border-[#262626] text-white p-6 rounded-3xl shadow-2xl">
+      <DialogContent className="sm:max-w-[480px] bg-[#14120e] border-[#2b2518] text-white p-6 rounded-3xl shadow-2xl">
         {/* Заголовок */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#1c231d] border border-[#2e402d] text-[#a3e635] flex items-center justify-center shadow-[0_0_12px_rgba(163,230,53,0.15)]">
+            <div className="w-10 h-10 rounded-2xl bg-[#242016] border border-[#4a3f24] text-[#FDE047] flex items-center justify-center shadow-[0_0_12px_rgba(253,224,71,0.15)]">
               <Sliders size={20} />
             </div>
             <div>
               <DialogTitle className="text-lg font-black text-white m-0 tracking-tight flex items-center gap-2">
                 DJ Эквалайзер
                 {eqState.isFXActive && (
-                  <span className="w-2 h-2 rounded-full bg-[#a3e635] animate-pulse" />
+                  <span className="w-2 h-2 rounded-full bg-[#FDE047] animate-pulse" />
                 )}
               </DialogTitle>
               <DialogDescription className="text-xs text-neutral-400 m-0">
@@ -294,10 +294,10 @@ export function EqualizerModal({ open, onOpenChange }) {
         <div className="mb-5 p-3 rounded-2xl bg-[#0a0a0a] border border-[#1f1f1f] shadow-inner relative overflow-hidden">
           <div className="flex items-center justify-between mb-1.5 px-1">
             <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-500 flex items-center gap-1">
-              <Zap size={10} className="text-[#a3e635]" />
+              <Zap size={10} className="text-[#FDE047]" />
               Спектрограмма (AnalyserNode)
             </span>
-            <span className="text-[10px] font-mono text-[#a3e635]">
+            <span className="text-[10px] font-mono text-[#FDE047]">
               {audioService.isPlaying ? "LIVE" : "IDLE"}
             </span>
           </div>
@@ -325,7 +325,7 @@ export function EqualizerModal({ open, onOpenChange }) {
                   className={cn(
                     "py-2.5 px-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95",
                     isActive
-                      ? "bg-[#1c231d] border border-[#a3e635]/60 text-[#a3e635] shadow-[0_0_12px_rgba(163,230,53,0.18)]"
+                      ? "bg-[#242016] border border-[#FDE047]/60 text-[#FDE047] shadow-[0_0_12px_rgba(253,224,71,0.2)]"
                       : "bg-[#171717] border border-[#262626] text-neutral-300 hover:border-neutral-500 hover:text-white"
                   )}
                 >

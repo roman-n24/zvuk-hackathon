@@ -210,7 +210,6 @@ class CompleteRequest(BaseModel):
     queue_version: int = Field(ge=0)
 
 
-<<<<<<< HEAD
 class LibraryTrackCreate(BaseModel):
     key: str
     title: str
@@ -244,10 +243,10 @@ def _get_library_items(db: Session) -> list[dict]:
             for t in db_tracks
         ]
     return LIBRARY
-=======
+
+
 class PartyStartRequest(BaseModel):
     name: str = Field(default="Вечеринка", max_length=150)
->>>>>>> a9756f3b4afffd308257669cc318421c5ac1eafd
 
 
 def _clean(value: str, limit: int) -> str:

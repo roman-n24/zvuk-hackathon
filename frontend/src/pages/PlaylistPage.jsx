@@ -90,7 +90,7 @@ function TrackThumb({ gradient, size = 48 }) {
 
 function VoteBlock({ track, onVote }) {
   const cnt = track.votes;
-  const cntColor = cnt > 0 ? "text-[#a3e635]" : cnt < 0 ? "text-red-400" : "text-neutral-400";
+  const cntColor = cnt > 0 ? "text-[#FDE047]" : cnt < 0 ? "text-red-400" : "text-neutral-400";
   return (
     <div className="flex items-center gap-1 shrink-0">
       <button
@@ -98,8 +98,8 @@ function VoteBlock({ track, onVote }) {
         className={cn(
           "w-7 h-7 rounded-lg border flex items-center justify-center transition-all cursor-pointer",
           track.userVote === 1
-            ? "bg-[#1c231d] border-[#2e402d] text-[#a3e635]"
-            : "bg-[#1f1f1f] border-[#2e2e2e] text-neutral-400 hover:border-[#2e402d] hover:text-[#a3e635]"
+            ? "bg-[#282216] border-[#443820] text-[#FDE047]"
+            : "bg-[#1f1f1f] border-[#2e2e2e] text-neutral-400 hover:border-[#443820] hover:text-[#FDE047]"
         )}
         title="За"
       >
@@ -130,7 +130,7 @@ function TrackRow({ track, rank, isPlaying, canModerate, onPlay, onVote, onFavor
     <div className={cn(
       "flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all group",
       isPlaying
-        ? "bg-[#1c231d]/90 border-[#2e402d]"
+        ? "bg-[#242016]/90 border-[#443820]"
         : "bg-transparent border-transparent hover:bg-[#171717] hover:border-[#262626]"
     )}>
       <span className="w-5 text-center text-sm font-bold text-neutral-600 shrink-0">{rank}</span>
@@ -138,7 +138,7 @@ function TrackRow({ track, rank, isPlaying, canModerate, onPlay, onVote, onFavor
       {/* Индикатор динамики */}
       <span className="w-5 text-center shrink-0">
         {delta > 0
-          ? <span className="text-[11px] text-[#a3e635] font-bold">▲{delta}</span>
+          ? <span className="text-[11px] text-[#FDE047] font-bold">▲{delta}</span>
           : delta < 0
           ? <span className="text-[11px] text-red-400 font-bold">▼{Math.abs(delta)}</span>
           : <Minus size={10} className="text-neutral-700 inline" />}
@@ -150,12 +150,12 @@ function TrackRow({ track, rank, isPlaying, canModerate, onPlay, onVote, onFavor
           "absolute inset-0 rounded-xl bg-black/60 flex items-center justify-center transition-opacity",
           isPlaying ? "opacity-100" : "opacity-0 group-hover:opacity-100"
         )}>
-          {isPlaying ? <Pause size={16} className="text-[#a3e635] fill-[#a3e635]" /> : <Play size={16} className="text-white fill-white" />}
+          {isPlaying ? <Pause size={16} className="text-[#FDE047] fill-[#FDE047]" /> : <Play size={16} className="text-white fill-white" />}
         </div>
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className={cn("text-sm font-semibold truncate", isPlaying ? "text-[#a3e635]" : "text-white")}>{track.title}</p>
+        <p className={cn("text-sm font-semibold truncate", isPlaying ? "text-[#FDE047]" : "text-white")}>{track.title}</p>
         <p className="text-xs text-neutral-400 truncate">{track.artist}</p>
         <p className="text-[11px] text-neutral-500 mt-0.5">
           Предложил: <span className="text-neutral-400">{track.proposer}</span> · {track.duration}
@@ -209,9 +209,9 @@ function ModRow({ track, canModerate, onApprove, onReject }) {
         <div className="flex gap-2 shrink-0">
           <button
             onClick={() => onApprove(track.id)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#1c231d] border border-[#2e402d] text-white hover:bg-[#243025] transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#282216] border border-[#443820] text-white hover:bg-[#342b1b] transition-colors cursor-pointer"
           >
-            <CheckCircle size={12} className="text-[#a3e635]" /> Одобрить
+            <CheckCircle size={12} className="text-[#FDE047]" /> Одобрить
           </button>
           <button
             onClick={() => onReject(track.id)}
@@ -236,7 +236,7 @@ function NextBadge({ tracks, currentId }) {
   return (
     <div className="flex flex-col items-end gap-0.5 min-w-0 hidden md:flex">
       <span className="text-[11px] text-neutral-500">Следующий по рейтингу:</span>
-      <span className="text-xs font-semibold text-white bg-[#1c231d] border border-[#2e402d] rounded-lg px-2.5 py-1 max-w-[190px] truncate">
+      <span className="text-xs font-semibold text-white bg-[#242016] border border-[#443820] rounded-lg px-2.5 py-1 max-w-[190px] truncate">
         {next ? `${next.title} — ${next.artist}` : "—"}
       </span>
     </div>
@@ -855,11 +855,11 @@ export function PlaylistPage() {
 
   const addHistory = useCallback((action, track) => {
     const map = {
-      vote_up:   { label: "Проголосовали «За»",     color: "#a3e635", symbol: "▲" },
+      vote_up:   { label: "Проголосовали «За»",     color: "#FDE047", symbol: "▲" },
       vote_down: { label: "Проголосовали «Против»",  color: "#ef4444", symbol: "▼" },
       unvote:    { label: "Отменили голос",          color: "#6b7280", symbol: "↩" },
       propose:   { label: "Предложили трек",         color: "#a78bfa", symbol: "✦" },
-      approve:   { label: "Одобрили трек",           color: "#a3e635", symbol: "✓" },
+      approve:   { label: "Одобрили трек",           color: "#FDE047", symbol: "✓" },
       reject:    { label: "Отклонили трек",          color: "#ef4444", symbol: "✕" },
       delete:    { label: "Удалили трек",            color: "#ef4444", symbol: "🗑" },
     };
@@ -1199,8 +1199,8 @@ export function PlaylistPage() {
 
               {/* Кнопка смены обложки, появляющаяся ТОЛЬКО при наведении на аватарку */}
               <div className="absolute inset-0 bg-black/65 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
-                <div className="w-8 h-8 rounded-full bg-[#1c231d] border border-[#2e402d] text-white flex items-center justify-center shadow-md">
-                  <Plus size={16} className="text-[#a3e635]" strokeWidth={2.5} />
+                <div className="w-8 h-8 rounded-full bg-[#282216] border border-[#443820] text-white flex items-center justify-center shadow-md">
+                  <Plus size={16} className="text-[#FDE047]" strokeWidth={2.5} />
                 </div>
                 <span className="text-[9px] font-medium text-neutral-200">Обложка</span>
               </div>
@@ -1242,20 +1242,20 @@ export function PlaylistPage() {
           {/* Таймер ротации и вспомогательные кнопки */}
           <div className="flex flex-wrap items-center justify-center gap-2">
             <span className="inline-flex items-center gap-1.5 text-xs text-neutral-400 bg-neutral-900/70 border border-neutral-800 rounded-lg px-3 py-1.5">
-              <span className="text-[#a3e635]">⏱</span>
+              <span className="text-[#FDE047]">⏱</span>
               До ротации: <strong className="text-white tabular-nums ml-1">{countdown}</strong>
             </span>
             <button
               onClick={() => setModalInvite(true)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-900/70 border border-neutral-800 text-neutral-300 text-xs font-medium hover:bg-neutral-800 hover:text-white transition-colors cursor-pointer"
             >
-              <Users size={13} className="text-[#a3e635]" /> Пригласить
+              <Users size={13} className="text-[#FDE047]" /> Пригласить
             </button>
             <button
               onClick={() => setModalHistory(true)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-900/70 border border-neutral-800 text-neutral-300 text-xs font-medium hover:bg-neutral-800 hover:text-white transition-colors cursor-pointer"
             >
-              <History size={13} className="text-[#a3e635]" /> История
+              <History size={13} className="text-[#FDE047]" /> История
             </button>
             {/* Управление администраторами доступно создателю */}
             {playlist.creatorId === user.id && (
@@ -1263,7 +1263,7 @@ export function PlaylistPage() {
                 onClick={() => setModalAdmins(true)}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-900/70 border border-neutral-800 text-neutral-300 text-xs font-medium hover:bg-neutral-800 hover:text-white transition-colors cursor-pointer"
               >
-                <Crown size={13} className="text-[#a3e635]" /> Администраторы
+                <Crown size={13} className="text-[#FDE047]" /> Администраторы
               </button>
             )}
           </div>
@@ -1274,28 +1274,28 @@ export function PlaylistPage() {
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         {/* Родительский элемент для кнопок действий и плашки "Владелец" */}
         <div className="flex items-center gap-2.5">
-          {/* Кнопка "Слушать всё" — стильная темная палитра с белым текстом и зеленым акцентом */}
+          {/* Кнопка "Слушать всё" */}
           <button
             onClick={() => { const s = sortedTracks(tracks); if (s.length) playTrack(s[0].id); }}
-            className="h-10 px-4 rounded-xl bg-[#1c231d] border border-[#2e402d] hover:bg-[#243025] hover:border-[#3c543b] text-white font-medium text-sm transition-all inline-flex items-center gap-2 cursor-pointer shadow-xs"
+            className="h-10 px-4 rounded-xl bg-[#282216] border border-[#443820] hover:bg-[#342b1b] hover:border-[#524424] text-white font-medium text-sm transition-all inline-flex items-center gap-2 cursor-pointer shadow-xs"
           >
-            <Play size={15} className="fill-[#a3e635] text-[#a3e635]" />
+            <Play size={15} className="fill-[#FDE047] text-[#FDE047]" />
             <span className="text-white font-medium">Слушать всё</span>
           </button>
 
-          {/* Кнопка "Предложить трек" в том же стиле */}
+          {/* Кнопка "Предложить трек" */}
           <button
             onClick={() => setModalAdd(true)}
-            className="h-10 px-4 rounded-xl bg-[#1c231d] border border-[#2e402d] hover:bg-[#243025] hover:border-[#3c543b] text-white font-medium text-sm transition-all inline-flex items-center gap-2 cursor-pointer shadow-xs"
+            className="h-10 px-4 rounded-xl bg-[#282216] border border-[#443820] hover:bg-[#342b1b] hover:border-[#524424] text-white font-medium text-sm transition-all inline-flex items-center gap-2 cursor-pointer shadow-xs"
           >
-            <Plus size={16} className="text-[#a3e635]" />
+            <Plus size={16} className="text-[#FDE047]" />
             <span className="text-white font-medium">{playlist.creatorId === user.id ? "Добавить трек" : "Предложить трек"}</span>
           </button>
 
           {/* Элемент "Владелец" / "Модератор" / "Слушатель" */}
           {canModerate ? (
             <span className="h-10 px-4 rounded-xl bg-[#171717] border border-[#262626] text-sm font-medium inline-flex items-center gap-2 select-none">
-              <ShieldCheck size={16} className="text-[#a3e635]" />
+              <ShieldCheck size={16} className="text-[#FDE047]" />
               <span className="text-white">{playlist.creatorId === user.id ? "Владелец" : "Модератор"}</span>
             </span>
           ) : (
@@ -1322,7 +1322,7 @@ export function PlaylistPage() {
             >
               {label}
               {count > 0 && (
-                <span className="text-[11px] font-bold bg-[#1c231d] border border-[#2e402d] text-[#a3e635] rounded-full px-1.5 min-w-[18px] text-center">
+                <span className="text-[11px] font-bold bg-[#282216] border border-[#443820] text-[#FDE047] rounded-full px-1.5 min-w-[18px] text-center">
                   {count}
                 </span>
               )}
@@ -1338,22 +1338,22 @@ export function PlaylistPage() {
             audioService.unlock();
             showToast("🎧 Звук совместного эфира активен");
           }}
-          className="mb-4 px-4 py-2.5 rounded-xl bg-[#1c231d] border border-[#2e402d] flex items-center justify-between gap-3 cursor-pointer hover:bg-[#243025] transition-all"
+          className="mb-4 px-4 py-2.5 rounded-xl bg-[#282216] border border-[#443820] flex items-center justify-between gap-3 cursor-pointer hover:bg-[#342b1b] transition-all"
         >
           <div className="flex items-center gap-2.5 min-w-0">
             <span className="relative flex h-2.5 w-2.5 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#a3e635] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#a3e635]"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FDE047] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#FDE047]"></span>
             </span>
             <p className="text-xs font-semibold text-white truncate">
-              Сейчас играет для всех: <span className="text-[#a3e635]">«{currentTrack.title}» — {currentTrack.artist}</span>
+              Сейчас играет для всех: <span className="text-[#FDE047]">«{currentTrack.title}» — {currentTrack.artist}</span>
             </p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-[11px] text-neutral-400 hidden sm:inline">
               {canModerate ? "Вы управляете эфиром" : "Нажмите, чтобы включить звук"}
             </span>
-            <span className="text-xs font-bold text-[#a3e635] bg-[#243025] px-2.5 py-1 rounded-lg border border-[#3c543b]">
+            <span className="text-xs font-bold text-[#FDE047] bg-[#342b1b] px-2.5 py-1 rounded-lg border border-[#524424]">
               {canModerate ? "В эфире 🔴" : "Включить звук 🔊"}
             </span>
           </div>
@@ -1415,7 +1415,7 @@ export function PlaylistPage() {
       {/* ═══ МИНИ-ПЛЕЕР ═════════════════════════════════════════════════════ */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#0e0e0e]/95 backdrop-blur-xl border-t border-[#262626]">
         <div className="h-0.5 w-full bg-neutral-800 cursor-pointer" onClick={seekPlayer}>
-          <div className="h-full bg-[#a3e635] transition-[width] duration-500" style={{ width: `${player.progress}%` }} />
+          <div className="h-full bg-[#FDE047] transition-[width] duration-500" style={{ width: `${player.progress}%` }} />
         </div>
         <div className="max-w-none px-6 py-3 flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-3 flex-1 min-w-[160px]">
@@ -1430,7 +1430,7 @@ export function PlaylistPage() {
               <div className="flex items-center gap-2">
                 <p className="text-sm font-semibold text-white truncate max-w-[150px]">{currentTrack?.title ?? "—"}</p>
                 {player.playing && (
-                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold text-[#a3e635] bg-[#1c231d] border border-[#2e402d] px-1.5 py-0.2 rounded-md">
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold text-[#FDE047] bg-[#282216] border border-[#443820] px-1.5 py-0.2 rounded-md">
                     <Radio size={10} className="animate-pulse" /> Эфир
                   </span>
                 )}
@@ -1450,9 +1450,9 @@ export function PlaylistPage() {
             <button
               onClick={togglePlay}
               title={canModerate ? (player.playing ? "Пауза для всех" : "Воспроизведение для всех") : (player.playing ? "Слушать общий эфир" : "Только администратор включает эфир")}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-[#1c231d] border border-[#2e402d] text-white hover:bg-[#243025] hover:border-[#3c543b] transition-colors cursor-pointer"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-[#282216] border border-[#443820] text-white hover:bg-[#342b1b] hover:border-[#524424] transition-colors cursor-pointer"
             >
-              {player.playing ? <Pause size={17} className="fill-[#a3e635] text-[#a3e635]" /> : <Play size={17} className="fill-[#a3e635] text-[#a3e635] ml-0.5" />}
+              {player.playing ? <Pause size={17} className="fill-[#FDE047] text-[#FDE047]" /> : <Play size={17} className="fill-[#FDE047] text-[#FDE047] ml-0.5" />}
             </button>
             <button
               onClick={playerNext}
@@ -1490,7 +1490,7 @@ export function PlaylistPage() {
                 setVolumeState(v);
                 audioService.setVolume(v);
               }}
-              className="w-16 lg:w-20 h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-[#a3e635]"
+              className="w-16 lg:w-20 h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-[#FDE047]"
               title={`Громкость: ${Math.round(volume * 100)}%`}
             />
           </div>
@@ -1501,15 +1501,15 @@ export function PlaylistPage() {
             className={cn(
               "relative h-9 px-3 rounded-xl border flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95",
               isFXActive
-                ? "bg-[#1c231d] border-[#a3e635]/60 text-[#a3e635] shadow-[0_0_12px_rgba(163,230,53,0.25)]"
+                ? "bg-[#282216] border-[#FDE047]/60 text-[#FDE047] shadow-[0_0_12px_rgba(253,224,71,0.25)]"
                 : "bg-[#171717] border-[#2a2a2a] text-neutral-400 hover:text-white hover:border-[#3a3a3a]"
             )}
             title="3-полосный эквалайзер и DJ-эффекты"
           >
-            <Sliders size={14} className={isFXActive ? "text-[#a3e635]" : ""} />
+            <Sliders size={14} className={isFXActive ? "text-[#FDE047]" : ""} />
             <span className="hidden sm:inline">EQ</span>
             {isFXActive && (
-              <span className="w-2 h-2 rounded-full bg-[#a3e635] shadow-[0_0_6px_#a3e635] animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-[#FDE047] shadow-[0_0_6px_#FDE047] animate-pulse" />
             )}
           </button>
         </div>
@@ -1530,10 +1530,10 @@ export function PlaylistPage() {
           ══════════════════════════════════════════════════════════════════════ */}
       <Dialog open={modalAdd} onOpenChange={setModalAdd}>
         <DialogContent className="sm:max-w-[540px] bg-[#171717] border-[#262626] text-white max-h-[85vh] overflow-y-auto">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1c231d] border border-[#2e4730] text-[#a3e635]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#282216] border border-[#443820] text-[#FDE047]">
             <Plus size={18} />
           </div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-[#a3e635] m-0">НОВЫЙ ТРЕК</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-[#FDE047] m-0">НОВЫЙ ТРЕК</p>
           <DialogTitle className="text-xl font-bold text-white m-0">Предложить трек</DialogTitle>
           <DialogDescription asChild>
             <p className="text-sm text-neutral-400 m-0">Выберите трек из библиотеки или загрузите файл — он попадёт на модерацию.</p>
@@ -1554,7 +1554,7 @@ export function PlaylistPage() {
               <div className="relative">
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
                 <input type="text" placeholder="Поиск..." value={libSearch} onChange={(e) => setLibSearch(e.target.value)}
-                  className="w-full bg-[#1c1c1c] border border-[#262626] rounded-xl pl-9 pr-3 py-2.5 text-sm text-white placeholder-neutral-500 outline-none focus:border-[#2e402d] transition-colors" />
+                  className="w-full bg-[#1c1c1c] border border-[#262626] rounded-xl pl-9 pr-3 py-2.5 text-sm text-white placeholder-neutral-500 outline-none focus:border-[#443820] transition-colors" />
               </div>
               <div className="flex flex-col gap-1">
                 {filteredLib.length === 0 && <p className="text-center py-6 text-sm text-neutral-600">Ничего не найдено</p>}
@@ -1566,8 +1566,8 @@ export function PlaylistPage() {
                       <p className="text-xs text-neutral-400">{t.artist} · {t.duration}</p>
                     </div>
                     <button onClick={() => addFromLibrary(t.id)}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#1c231d] border border-[#2e402d] text-white text-xs font-semibold hover:bg-[#243025] transition-colors shrink-0 cursor-pointer">
-                      <Plus size={12} className="text-[#a3e635]" /> Добавить
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#282216] border border-[#443820] text-white text-xs font-semibold hover:bg-[#342b1b] transition-colors shrink-0 cursor-pointer">
+                      <Plus size={12} className="text-[#FDE047]" /> Добавить
                     </button>
                   </div>
                 ))}
@@ -1577,7 +1577,7 @@ export function PlaylistPage() {
 
           {addTab === "file" && (
             <div className="flex flex-col gap-4">
-              <label className="border-2 border-dashed border-[#303030] rounded-2xl p-8 text-center cursor-pointer hover:border-[#2e402d] hover:bg-[#1c231d]/20 transition-all"
+              <label className="border-2 border-dashed border-[#303030] rounded-2xl p-8 text-center cursor-pointer hover:border-[#443820] hover:bg-[#282216]/20 transition-all"
                 onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f?.type.startsWith("audio/")) { setChosenFile(f); if (!uploadTitle) setUploadTitle(f.name.replace(/\.[^.]+$/,"")); } }}>
                 <Upload size={28} className="mx-auto mb-2 text-neutral-500" />
                 <p className="text-sm font-semibold text-neutral-300 mb-1">{chosenFile ? chosenFile.name : "Перетащите аудиофайл"}</p>
@@ -1585,8 +1585,8 @@ export function PlaylistPage() {
                 <input type="file" accept="audio/*" className="hidden" onChange={(e) => { const f = e.target.files[0]; if (f) { setChosenFile(f); if (!uploadTitle) setUploadTitle(f.name.replace(/\.[^.]+$/,"")); } }} />
               </label>
               {chosenFile && (
-                <div className="flex items-center gap-2 px-3 py-2 bg-[#1c231d]/70 border border-[#2e402d] rounded-xl text-xs text-white">
-                  <Music size={13} className="text-[#a3e635]" /> {chosenFile.name}
+                <div className="flex items-center gap-2 px-3 py-2 bg-[#282216]/70 border border-[#443820] rounded-xl text-xs text-white">
+                  <Music size={13} className="text-[#FDE047]" /> {chosenFile.name}
                 </div>
               )}
               <div className="flex flex-col gap-3">
@@ -1598,14 +1598,14 @@ export function PlaylistPage() {
                   <div key={label}>
                     <label className="block text-xs font-semibold text-neutral-400 mb-1.5">{label}</label>
                     <input type="text" value={value} onChange={(e) => set(e.target.value)} placeholder={placeholder}
-                      className="w-full bg-[#1c1c1c] border border-[#262626] rounded-xl px-3 py-2.5 text-sm text-white placeholder-neutral-500 outline-none focus:border-[#2e402d] transition-colors" />
+                      className="w-full bg-[#1c1c1c] border border-[#262626] rounded-xl px-3 py-2.5 text-sm text-white placeholder-neutral-500 outline-none focus:border-[#443820] transition-colors" />
                   </div>
                 ))}
                 <button
                   onClick={uploadTrack}
-                  className="w-full py-2.5 rounded-xl bg-[#1c231d] border border-[#2e402d] text-white hover:bg-[#243025] hover:border-[#3c543b] font-medium text-sm transition-colors mt-1 inline-flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-2.5 rounded-xl bg-[#282216] border border-[#443820] text-white hover:bg-[#342b1b] hover:border-[#524424] font-medium text-sm transition-colors mt-1 inline-flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Upload size={15} className="text-[#a3e635]" /> Отправить на модерацию
+                  <Upload size={15} className="text-[#FDE047]" /> Отправить на модерацию
                 </button>
               </div>
             </div>
@@ -1618,10 +1618,10 @@ export function PlaylistPage() {
           ══════════════════════════════════════════════════════════════════════ */}
       <Dialog open={modalInvite} onOpenChange={setModalInvite}>
         <DialogContent className="sm:max-w-[460px] bg-[#171717] border-[#262626] text-white">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1c231d] border border-[#2e4730] text-[#a3e635]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#282216] border border-[#443820] text-[#FDE047]">
             <Users size={18} />
           </div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-[#a3e635] m-0">ВМЕСТЕ ГРОМЧЕ</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-[#FDE047] m-0">ВМЕСТЕ ГРОМЧЕ</p>
           <DialogTitle className="text-xl font-bold text-white m-0">Пригласить участников</DialogTitle>
           <DialogDescription asChild>
             <p className="text-sm text-neutral-400 m-0">Поделись ссылкой или кодом — участники смогут слушать и голосовать.</p>
@@ -1631,17 +1631,17 @@ export function PlaylistPage() {
               <label className="block text-xs font-semibold text-neutral-400 mb-1.5">Ссылка-приглашение</label>
               <div className="flex items-center gap-2">
                 <input readOnly value={resolvedInviteLink}
-                  className="flex-1 bg-[#1c1c1c] border border-[#262626] rounded-xl px-3 py-2.5 text-sm text-[#a3e635] font-mono outline-none" />
+                  className="flex-1 bg-[#1c1c1c] border border-[#262626] rounded-xl px-3 py-2.5 text-sm text-[#FDE047] font-mono outline-none" />
                 <button onClick={copyInviteLink}
-                  className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#1c231d] border border-[#2e402d] text-white text-sm font-semibold hover:bg-[#243025] transition-colors shrink-0 cursor-pointer">
-                  {copiedLink ? <Check size={14} className="text-[#a3e635]" /> : <Copy size={14} className="text-[#a3e635]" />}
+                  className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#282216] border border-[#443820] text-white text-sm font-semibold hover:bg-[#342b1b] transition-colors shrink-0 cursor-pointer">
+                  {copiedLink ? <Check size={14} className="text-[#FDE047]" /> : <Copy size={14} className="text-[#FDE047]" />}
                   {copiedLink ? "Скопировано" : "Копировать"}
                 </button>
               </div>
             </div>
             <div>
               <label className="block text-xs font-semibold text-neutral-400 mb-1.5">Код доступа</label>
-              <div className="flex items-center justify-between bg-[#1c231d] border border-[#2e402d] rounded-xl px-4 py-3">
+              <div className="flex items-center justify-between bg-[#282216] border border-[#443820] rounded-xl px-4 py-3">
                 <span className="text-2xl font-black tracking-widest text-white">{currentInviteCode}</span>
                 <span className="text-xs text-neutral-400">Введи в приложении</span>
               </div>
@@ -1729,10 +1729,10 @@ export function PlaylistPage() {
           ══════════════════════════════════════════════════════════════════════ */}
       <Dialog open={modalAdmins} onOpenChange={setModalAdmins}>
         <DialogContent className="sm:max-w-[460px] bg-[#171717] border-[#262626] text-white">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1c231d] border border-[#2e4730] text-[#a3e635]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#282216] border border-[#443820] text-[#FDE047]">
             <Crown size={18} />
           </div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-[#a3e635] m-0">УПРАВЛЕНИЕ</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-[#FDE047] m-0">УПРАВЛЕНИЕ</p>
           <DialogTitle className="text-xl font-bold text-white m-0">Администраторы плейлиста</DialogTitle>
           <DialogDescription asChild>
             <p className="text-sm text-neutral-400 m-0">
@@ -1755,7 +1755,7 @@ export function PlaylistPage() {
                     <p className="text-xs text-neutral-400">{m.username}</p>
                   </div>
                   {isOwner ? (
-                    <span className="flex items-center gap-1 text-xs font-semibold text-[#a3e635] bg-[#1c231d] border border-[#2e402d] rounded-lg px-2.5 py-1 shrink-0">
+                    <span className="flex items-center gap-1 text-xs font-semibold text-[#FDE047] bg-[#282216] border border-[#443820] rounded-lg px-2.5 py-1 shrink-0">
                       <Crown size={12} /> Владелец
                     </span>
                   ) : (
@@ -1764,8 +1764,8 @@ export function PlaylistPage() {
                       className={cn(
                         "flex items-center gap-1.5 text-xs font-semibold rounded-lg px-3 py-1.5 border transition-colors shrink-0 cursor-pointer",
                         isAdmin
-                          ? "bg-[#1c231d] border-[#2e402d] text-[#a3e635] hover:bg-red-950/30 hover:border-red-800/40 hover:text-red-400"
-                          : "bg-[#1c1c1c] border-[#303030] text-neutral-400 hover:bg-[#1c231d] hover:border-[#2e402d] hover:text-[#a3e635]"
+                          ? "bg-[#282216] border-[#443820] text-[#FDE047] hover:bg-red-950/30 hover:border-red-800/40 hover:text-red-400"
+                          : "bg-[#1c1c1c] border-[#303030] text-neutral-400 hover:bg-[#282216] hover:border-[#443820] hover:text-[#FDE047]"
                       )}
                     >
                       {isAdmin ? <><ShieldCheck size={12} /> Модератор</> : <><UserPlus size={12} /> Назначить</>}
