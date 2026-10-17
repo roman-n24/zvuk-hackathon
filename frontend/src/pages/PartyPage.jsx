@@ -27,9 +27,13 @@ import {
   ChevronDown,
   LogOut,
   Share2,
+  Sliders,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { audioService } from "@/lib/audioService";
+import { EqualizerModal } from "@/components/EqualizerModal";
 
 const STUDIO_TRACKS = [
   {
@@ -145,6 +149,9 @@ export function PartyPage() {
   // Modals
   const [modalAddTrack, setModalAddTrack] = useState(false);
   const [modalStop, setModalStop] = useState(false);
+  const [eqOpen, setEqOpen] = useState(false);
+  const [isFXActive, setIsFXActive] = useState(audioService.isFXActive);
+  const [volume, setVolumeState] = useState(audioService.volume);
   const [addTrackTab, setAddTrackTab] = useState("library"); // library | custom
   const [trackSearch, setTrackSearch] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("Все жанры");
@@ -196,7 +203,13 @@ export function PartyPage() {
         });
       }
     });
-    return () => unsub();
+    const unsubEQ = audioService.subscribeEQ((st) => {
+      setIsFXActive(st.isFXActive);
+    });
+    return () => {
+      unsub();
+      unsubEQ();
+    };
   }, []);
 
   // Load party state function
@@ -1216,7 +1229,54 @@ export function PartyPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            {/* Контрол громкости */}
+            <div className="hidden md:flex items-center gap-2">
+              <button
+                onClick={() => {
+                  const nextVol = volume === 0 ? 0.7 : 0;
+                  setVolumeState(nextVol);
+                  audioService.setVolume(nextVol);
+                }}
+                className="text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                title={volume === 0 ? "Включить звук" : "Выключить звук"}
+              >
+                {volume === 0 ? <VolumeX size={16} className="text-red-400" /> : <Volume2 size={16} />}
+              </button>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.02"
+                value={volume}
+                onChange={(e) => {
+                  const v = parseFloat(e.target.value);
+                  setVolumeState(v);
+                  audioService.setVolume(v);
+                }}
+                className="w-16 lg:w-20 h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-[#a3e635]"
+                title={`Громкость: ${Math.round(volume * 100)}%`}
+              />
+            </div>
+
+            {/* Кнопка вызова эквалайзера */}
+            <button
+              onClick={() => setEqOpen(true)}
+              className={cn(
+                "relative h-9 px-3 rounded-xl border flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95",
+                isFXActive
+                  ? "bg-[#1c231d] border-[#a3e635]/60 text-[#a3e635] shadow-[0_0_12px_rgba(163,230,53,0.25)]"
+                  : "bg-[#171717] border-[#2a2a2a] text-neutral-400 hover:text-white hover:border-[#3a3a3a]"
+              )}
+              title="3-полосный эквалайзер и DJ-эффекты"
+            >
+              <Sliders size={14} className={isFXActive ? "text-[#a3e635]" : ""} />
+              <span className="hidden sm:inline">EQ</span>
+              {isFXActive && (
+                <span className="w-2 h-2 rounded-full bg-[#a3e635] shadow-[0_0_6px_#a3e635] animate-pulse" />
+              )}
+            </button>
+
             <button
               onClick={() => {
                 if (currentPlayingTrack) handlePlayTrack(currentPlayingTrack);
@@ -1233,6 +1293,9 @@ export function PartyPage() {
           </div>
         </div>
       </div>
+
+      {/* ═══ МОДАЛКА ЭКВАЛАЙЗЕРА ═════════════════════════════════════════════ */}
+      <EqualizerModal open={eqOpen} onOpenChange={setEqOpen} />
 
       {/* ═══ ТОСТ-УВЕДОМЛЕНИЯ ════════════════════════════════════════════════ */}
       {toast && (
