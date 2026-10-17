@@ -680,7 +680,7 @@ export function PartyPage() {
         {/* Две карточки: Создать или Войти */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* КАРТОЧКА СОЗДАНИЯ */}
-          <div className="rounded-3xl bg-[#121212] border border-[#2a2624] p-8 shadow-2xl relative overflow-hidden flex flex-col justify-between">
+          <div className="rounded-3xl bg-[#151122] border border-[#2a2624] p-8 shadow-2xl relative overflow-hidden flex flex-col justify-between">
             <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
 
             <div>
@@ -702,7 +702,7 @@ export function PartyPage() {
                     value={createTitle}
                     onChange={(e) => setCreateTitle(e.target.value)}
                     placeholder="Субботний Движ 🔥"
-                    className="w-full bg-[#080808] border border-[#303030] rounded-2xl px-4 py-3.5 text-sm text-white placeholder-neutral-600 outline-none focus:border-orange-500 transition-colors"
+                    className="w-full bg-[#0d0b14] border border-[#352b54] rounded-2xl px-4 py-3.5 text-sm text-white placeholder-neutral-600 outline-none focus:border-orange-500 transition-colors"
                   />
                 </div>
 
@@ -712,7 +712,7 @@ export function PartyPage() {
                       key={preset}
                       type="button"
                       onClick={() => setCreateTitle(preset)}
-                      className="text-xs px-3 py-1.5 rounded-xl bg-[#1f1f1f] border border-[#363636] text-neutral-300 hover:text-white hover:border-neutral-500 transition-colors cursor-pointer"
+                      className="text-xs px-3 py-1.5 rounded-xl bg-[#201a35] border border-[#3b2f5e] text-neutral-300 hover:text-white hover:border-neutral-500 transition-colors cursor-pointer"
                     >
                       {preset}
                     </button>
@@ -732,16 +732,16 @@ export function PartyPage() {
           </div>
 
           {/* КАРТОЧКА ВХОДА ПО КОДУ */}
-          <div className="rounded-3xl bg-[#121212] border border-[#242424] p-8 shadow-2xl relative overflow-hidden flex flex-col justify-between">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-[#ccff00]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="rounded-3xl bg-[#151122] border border-[#28203f] p-8 shadow-2xl relative overflow-hidden flex flex-col justify-between">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-[#9146ff]/10 rounded-full blur-3xl pointer-events-none" />
 
             <div>
-              <div className="w-14 h-14 rounded-2xl bg-[#141a05] border border-[#3a4d0f] flex items-center justify-center text-[#ccff00] mb-6 shadow-xl shadow-[#ccff00]/10">
+              <div className="w-14 h-14 rounded-2xl bg-[#1e1633] border border-[#3b2d64] flex items-center justify-center text-[#9146ff] mb-6 shadow-xl shadow-[#9146ff]/10">
                 <Users size={28} />
               </div>
               <h2 className="text-2xl font-black text-white mb-2">Присоединиться</h2>
               <p className="text-xs text-neutral-400 mb-6 leading-relaxed">
-                Введите инвайт-код, который вам отправил хост вечеринки (например, <span className="text-[#ccff00] font-mono">P8X9K2</span>).
+                Введите инвайт-код, который вам отправил хост вечеринки (например, <span className="text-[#9146ff] font-mono">P8X9K2</span>).
               </p>
 
               <div>
@@ -754,11 +754,11 @@ export function PartyPage() {
                   onChange={(e) => setJoinCodeInput(e.target.value.toUpperCase())}
                   placeholder="PXXXXX"
                   maxLength={12}
-                  className="w-full bg-[#080808] border border-[#303030] rounded-2xl px-4 py-3.5 text-lg font-mono tracking-widest text-[#ccff00] placeholder-neutral-700 outline-none focus:border-[#ccff00] transition-colors uppercase text-center"
+                  className="w-full bg-[#0d0b14] border border-[#352b54] rounded-2xl px-4 py-3.5 text-lg font-mono tracking-widest text-[#9146ff] placeholder-neutral-700 outline-none focus:border-[#9146ff] transition-colors uppercase text-center"
                 />
               </div>
 
-              <div className="mt-5 p-4 rounded-2xl bg-[#080808] border border-[#222222] text-xs text-neutral-400 leading-relaxed">
+              <div className="mt-5 p-4 rounded-2xl bg-[#0d0b14] border border-[#261e3b] text-xs text-neutral-400 leading-relaxed">
                 💡 <span className="text-neutral-300 font-semibold">Совет:</span> Вы также можете просто перейти по прямой ссылке-инвайту, и подключение произойдет автоматически!
               </div>
             </div>
@@ -766,7 +766,7 @@ export function PartyPage() {
             <button
               onClick={handleJoinParty}
               disabled={isSubmitting || !joinCodeInput.trim()}
-              className="mt-8 w-full py-4 px-6 rounded-2xl bg-[#141a05] border border-[#3a4d0f] hover:bg-[#1c2408] text-[#ccff00] font-bold text-sm tracking-wide shadow-xl flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98 disabled:opacity-50"
+              className="mt-8 w-full py-4 px-6 rounded-2xl bg-[#1e1633] border border-[#3b2d64] hover:bg-[#2a1f47] text-[#9146ff] font-bold text-sm tracking-wide shadow-xl flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98 disabled:opacity-50"
             >
               <Share2 size={18} />
               <span>{isSubmitting ? "Подключение..." : "Войти на вечеринку"}</span>
@@ -776,7 +776,7 @@ export function PartyPage() {
 
         {/* Тост */}
         {toast && (
-          <div className="fixed top-5 right-5 z-[200] bg-[#161616] border border-[#303030] text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-2xl">
+          <div className="fixed top-5 right-5 z-[200] bg-[#181328] border border-[#352b54] text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-2xl">
             {toast}
           </div>
         )}
@@ -820,7 +820,7 @@ export function PartyPage() {
                 </span>
 
                 <span className="inline-flex items-center gap-1.5 text-xs text-neutral-300 bg-neutral-900/90 px-3 py-1 rounded-full border border-neutral-800">
-                  <Users size={12} className="text-[#ccff00]" />
+                  <Users size={12} className="text-[#9146ff]" />
                   {participants.length} тусеров
                 </span>
 
@@ -839,7 +839,7 @@ export function PartyPage() {
           {/* Правая часть: Таймер + Кнопка инвайта + Управление */}
           <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end flex-wrap">
             {/* Таймер */}
-            <div className="bg-[#121212] border border-[#2a2a2a] rounded-2xl px-4 py-2.5 text-center min-w-[110px]">
+            <div className="bg-[#151122] border border-[#2f264a] rounded-2xl px-4 py-2.5 text-center min-w-[110px]">
               <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 mb-0.5 flex items-center justify-center gap-1">
                 <Clock size={11} className="text-amber-400" />
                 В эфире
@@ -855,7 +855,7 @@ export function PartyPage() {
               className={cn(
                 "h-12 px-5 rounded-2xl font-bold text-xs tracking-wide transition-all shadow-lg flex items-center gap-2 cursor-pointer active:scale-95",
                 isLinkCopied
-                  ? "bg-[#141a05] border border-[#3a4d0f] text-[#ccff00]"
+                  ? "bg-[#1e1633] border border-[#3b2d64] text-[#9146ff]"
                   : "bg-[#221c17] hover:bg-[#2d241d] border border-[#402d1d] text-amber-400 hover:text-amber-300"
               )}
             >
@@ -902,13 +902,13 @@ export function PartyPage() {
         <div className="lg:col-span-5 flex flex-col gap-6">
 
           {/* КАРТОЧКА 2: НОМИНАЦИИ (БЭНГЕР И ХИТМЕЙКЕР) */}
-          <div className="rounded-3xl bg-[#121212] border border-[#242424] p-6 shadow-xl relative overflow-hidden flex flex-col gap-4">
+          <div className="rounded-3xl bg-[#151122] border border-[#28203f] p-6 shadow-xl relative overflow-hidden flex flex-col gap-4">
             <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-400 flex items-center gap-2">
               <Sparkles size={14} className="text-amber-400" /> Номинации вечеринки
             </h3>
 
             {/* Бэнгер */}
-            <div className="bg-[#080808] border border-[#222222] rounded-2xl p-4">
+            <div className="bg-[#0d0b14] border border-[#261e3b] rounded-2xl p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-orange-400 bg-orange-950/40 border border-orange-800/40 px-2.5 py-0.5 rounded-full">
                   <Flame size={11} /> Главный бэнгер
@@ -917,7 +917,7 @@ export function PartyPage() {
                   className={cn(
                     "text-xs font-black",
                     (banger?.score ?? 0) > 0
-                      ? "text-[#ccff00]"
+                      ? "text-[#9146ff]"
                       : (banger?.score ?? 0) < 0
                       ? "text-red-400"
                       : "text-neutral-400"
@@ -950,7 +950,7 @@ export function PartyPage() {
             </div>
 
             {/* Хитмейкер */}
-            <div className="bg-[#080808] border border-[#222222] rounded-2xl p-4">
+            <div className="bg-[#0d0b14] border border-[#261e3b] rounded-2xl p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-950/40 border border-amber-800/40 px-2.5 py-0.5 rounded-full">
                   <Crown size={11} /> Главный хитмейкер
@@ -959,7 +959,7 @@ export function PartyPage() {
                   className={cn(
                     "text-xs font-black",
                     (hitmaker?.total_score ?? 0) > 0
-                      ? "text-[#ccff00]"
+                      ? "text-[#9146ff]"
                       : (hitmaker?.total_score ?? 0) < 0
                       ? "text-red-400"
                       : "text-neutral-400"
@@ -988,10 +988,10 @@ export function PartyPage() {
           </div>
 
           {/* КАРТОЧКА 3: ГОСТИ ВЕЧЕРИНКИ */}
-          <div className="rounded-3xl bg-[#121212] border border-[#242424] p-6 shadow-xl relative overflow-hidden">
+          <div className="rounded-3xl bg-[#151122] border border-[#28203f] p-6 shadow-xl relative overflow-hidden">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-400 flex items-center gap-2">
-                <Users size={14} className="text-[#ccff00]" /> Гости тусовки
+                <Users size={14} className="text-[#9146ff]" /> Гости тусовки
               </h3>
               <span className="text-xs text-neutral-500">{participants.length} человек</span>
             </div>
@@ -1000,7 +1000,7 @@ export function PartyPage() {
               {participants.map((p) => (
                 <div
                   key={p.id}
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-[#080808] border border-[#222222]"
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-[#0d0b14] border border-[#261e3b]"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-8 h-8 rounded-lg bg-neutral-800 border border-neutral-700 text-neutral-200 font-bold text-xs flex items-center justify-center shrink-0">
@@ -1030,7 +1030,7 @@ export function PartyPage() {
 
         {/* ПРАВАЯ КОЛОНКА (7 из 12) — Живая очередь тусовки */}
         <div className="lg:col-span-7 flex flex-col gap-4">
-          <div className="rounded-3xl bg-[#121212] border border-[#242424] p-6 shadow-xl">
+          <div className="rounded-3xl bg-[#151122] border border-[#28203f] p-6 shadow-xl">
             {/* Заголовок очереди и кнопка добавить трек */}
             <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
               <div>
@@ -1061,8 +1061,8 @@ export function PartyPage() {
                     className={cn(
                       "flex items-center gap-3 px-3.5 py-3 rounded-2xl border transition-all group",
                       isPlaying
-                        ? "bg-[#141a05] border-[#3a4d0f]"
-                        : "bg-[#141414] border-[#222222] hover:bg-[#161616] hover:border-[#303030]"
+                        ? "bg-[#1e1633] border-[#3b2d64]"
+                        : "bg-[#141414] border-[#261e3b] hover:bg-[#181328] hover:border-[#352b54]"
                     )}
                   >
                     {/* Ранг / Медаль */}
@@ -1082,7 +1082,7 @@ export function PartyPage() {
                     >
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                         {isPlaying ? (
-                          <Pause size={16} className="text-[#ccff00] fill-[#ccff00]" />
+                          <Pause size={16} className="text-[#9146ff] fill-[#9146ff]" />
                         ) : (
                           <Play size={16} className="text-white fill-white ml-0.5" />
                         )}
@@ -1094,7 +1094,7 @@ export function PartyPage() {
                       <p
                         className={cn(
                           "text-sm font-semibold truncate",
-                          isPlaying ? "text-[#ccff00]" : "text-white"
+                          isPlaying ? "text-[#9146ff]" : "text-white"
                         )}
                       >
                         {track.title}
@@ -1112,10 +1112,10 @@ export function PartyPage() {
                       className={cn(
                         "text-sm font-extrabold px-2 py-0.5 rounded-lg border tabular-nums shrink-0",
                         (track.score || 0) > 0
-                          ? "text-[#ccff00] bg-[#141a05] border-[#3a4d0f]"
+                          ? "text-[#9146ff] bg-[#1e1633] border-[#3b2d64]"
                           : (track.score || 0) < 0
                           ? "text-red-400 bg-red-950/40 border-red-800/40"
-                          : "text-neutral-400 bg-[#181818] border-[#2c2c2c]"
+                          : "text-neutral-400 bg-[#1c172d] border-[#2c2c2c]"
                       )}
                     >
                       {(track.score || 0) > 0 ? `+${track.score}` : (track.score ?? 0)}
@@ -1128,7 +1128,7 @@ export function PartyPage() {
                         className={cn(
                           "w-6 h-5 rounded flex items-center justify-center transition-colors cursor-pointer",
                           track.my_vote === 1
-                            ? "bg-[#1c2408] text-[#ccff00]"
+                            ? "bg-[#2a1f47] text-[#9146ff]"
                             : "text-neutral-500 hover:text-neutral-200"
                         )}
                         title="Голосовать «За»"
@@ -1152,7 +1152,7 @@ export function PartyPage() {
                     {/* DMCA жалоба */}
                     <button
                       onClick={() => handleReportTrack(track)}
-                      className="w-8 h-8 rounded-xl bg-[#181818] border border-[#2b2b2b] hover:bg-red-500/10 hover:border-red-500/40 text-neutral-400 hover:text-red-400 flex items-center justify-center shrink-0 transition-all cursor-pointer"
+                      className="w-8 h-8 rounded-xl bg-[#1c172d] border border-[#2b2b2b] hover:bg-red-500/10 hover:border-red-500/40 text-neutral-400 hover:text-red-400 flex items-center justify-center shrink-0 transition-all cursor-pointer"
                       title="Пожаловаться на нарушение авторских прав (DMCA)"
                     >
                       <Flag size={14} />
@@ -1172,10 +1172,10 @@ export function PartyPage() {
       </div>
 
       {/* ═══ МИНИ-ПЛЕЕР ВНИЗУ ═════════════════════════════════════════════════ */}
-      <div className="fixed bottom-[56px] md:bottom-0 left-0 right-0 z-40 bg-[#0e0e0e]/95 backdrop-blur-xl border-t border-[#242424]">
+      <div className="fixed bottom-[56px] md:bottom-0 left-0 right-0 z-40 bg-[#0e0e0e]/95 backdrop-blur-xl border-t border-[#28203f]">
         <div className="h-0.5 w-full bg-neutral-800">
           <div
-            className="h-full bg-[#ccff00] transition-[width] duration-500"
+            className="h-full bg-[#9146ff] transition-[width] duration-500"
             style={{ width: `${player.progress}%` }}
           />
         </div>
@@ -1190,7 +1190,7 @@ export function PartyPage() {
                   {currentPlayingTrack?.title ?? "Общий эфир"}
                 </p>
                 {player.playing && (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#ccff00] bg-[#141a05] border border-[#3a4d0f] px-1.5 py-0.2 rounded-md">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#9146ff] bg-[#1e1633] border border-[#3b2d64] px-1.5 py-0.2 rounded-md">
                     <Radio size={10} className="animate-pulse" /> LIVE
                   </span>
                 )}
@@ -1206,13 +1206,13 @@ export function PartyPage() {
               onClick={() => {
                 if (currentPlayingTrack) handlePlayTrack(currentPlayingTrack);
               }}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-[#141a05] border border-[#3a4d0f] text-white hover:bg-[#1c2408] transition-colors cursor-pointer"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-[#1e1633] border border-[#3b2d64] text-white hover:bg-[#2a1f47] transition-colors cursor-pointer"
               title={isHost ? "Хост: Play / Pause для всех" : "Слушать локально"}
             >
               {player.playing ? (
-                <Pause size={17} className="fill-[#ccff00] text-[#ccff00]" />
+                <Pause size={17} className="fill-[#9146ff] text-[#9146ff]" />
               ) : (
-                <Play size={17} className="fill-[#ccff00] text-[#ccff00] ml-0.5" />
+                <Play size={17} className="fill-[#9146ff] text-[#9146ff] ml-0.5" />
               )}
             </button>
           </div>
@@ -1221,14 +1221,14 @@ export function PartyPage() {
 
       {/* ═══ ТОСТ-УВЕДОМЛЕНИЯ ════════════════════════════════════════════════ */}
       {toast && (
-        <div className="fixed top-5 right-5 z-[200] bg-[#161616] border border-[#303030] text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-2xl">
+        <div className="fixed top-5 right-5 z-[200] bg-[#181328] border border-[#352b54] text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-2xl">
           {toast}
         </div>
       )}
 
       {/* ═══ МОДАЛКА: ДОБАВИТЬ ТРЕК НА ВЕЧЕРИНКУ ═════════════════════════════ */}
       <Dialog open={modalAddTrack} onOpenChange={setModalAddTrack}>
-        <DialogContent className="sm:max-w-[600px] bg-[#121212] border-[#242424] text-white max-h-[85vh] flex flex-col">
+        <DialogContent className="sm:max-w-[600px] bg-[#151122] border-[#28203f] text-white max-h-[85vh] flex flex-col">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-xl bg-orange-950/40 border border-orange-800/40 text-orange-400 flex items-center justify-center">
               <Plus size={20} />
@@ -1244,7 +1244,7 @@ export function PartyPage() {
           </div>
 
           {/* Вкладки: Библиотека / Свой трек */}
-          <div className="flex gap-2 border-b border-[#242424] pb-3 mb-3">
+          <div className="flex gap-2 border-b border-[#28203f] pb-3 mb-3">
             <button
               onClick={() => setAddTrackTab("library")}
               className={cn(
@@ -1278,7 +1278,7 @@ export function PartyPage() {
                   value={trackSearch}
                   onChange={(e) => setTrackSearch(e.target.value)}
                   placeholder="Поиск по названию или исполнителю..."
-                  className="w-full bg-[#080808] border border-[#242424] rounded-xl pl-9 pr-3 py-2 text-xs text-white outline-none focus:border-orange-500"
+                  className="w-full bg-[#0d0b14] border border-[#28203f] rounded-xl pl-9 pr-3 py-2 text-xs text-white outline-none focus:border-orange-500"
                 />
               </div>
 
@@ -1305,7 +1305,7 @@ export function PartyPage() {
                 {filteredStudioTracks.map((tr) => (
                   <div
                     key={tr.key}
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-[#080808] border border-[#222222] hover:border-[#363636] transition-colors"
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-[#0d0b14] border border-[#261e3b] hover:border-[#3b2f5e] transition-colors"
                   >
                     <div className="min-w-0 pr-3">
                       <p className="text-xs font-semibold text-white truncate">{tr.title}</p>
@@ -1316,7 +1316,7 @@ export function PartyPage() {
 
                     <button
                       onClick={() => handleAddTrack(tr)}
-                      className="px-3 py-1.5 rounded-xl bg-[#141a05] border border-[#3a4d0f] text-[#ccff00] text-xs font-bold hover:bg-[#1c2408] transition-colors cursor-pointer shrink-0"
+                      className="px-3 py-1.5 rounded-xl bg-[#1e1633] border border-[#3b2d64] text-[#9146ff] text-xs font-bold hover:bg-[#2a1f47] transition-colors cursor-pointer shrink-0"
                     >
                       + В очередь
                     </button>
@@ -1333,7 +1333,7 @@ export function PartyPage() {
                   value={customTitle}
                   onChange={(e) => setCustomTitle(e.target.value)}
                   placeholder="Например: Ягода Малинка"
-                  className="w-full bg-[#080808] border border-[#242424] rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-orange-500"
+                  className="w-full bg-[#0d0b14] border border-[#28203f] rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-orange-500"
                 />
               </div>
 
@@ -1344,7 +1344,7 @@ export function PartyPage() {
                   value={customArtist}
                   onChange={(e) => setCustomArtist(e.target.value)}
                   placeholder="Например: Хабиб"
-                  className="w-full bg-[#080808] border border-[#242424] rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-orange-500"
+                  className="w-full bg-[#0d0b14] border border-[#28203f] rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-orange-500"
                 />
               </div>
 
@@ -1355,7 +1355,7 @@ export function PartyPage() {
                   value={customGenre}
                   onChange={(e) => setCustomGenre(e.target.value)}
                   placeholder="Поп, Хип-хоп, Рок..."
-                  className="w-full bg-[#080808] border border-[#242424] rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-orange-500"
+                  className="w-full bg-[#0d0b14] border border-[#28203f] rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-orange-500"
                 />
               </div>
 
@@ -1379,7 +1379,7 @@ export function PartyPage() {
 
       {/* ═══ МОДАЛКА: ЗАВЕРШЕНИЕ ВЕЧЕРИНКИ ═══════════════════════════════════ */}
       <Dialog open={modalStop} onOpenChange={setModalStop}>
-        <DialogContent className="sm:max-w-[420px] bg-[#121212] border-[#242424] text-white">
+        <DialogContent className="sm:max-w-[420px] bg-[#151122] border-[#28203f] text-white">
           <DialogTitle className="text-lg font-bold text-white m-0">
             Завершить вечеринку?
           </DialogTitle>
@@ -1405,7 +1405,7 @@ export function PartyPage() {
 
       {/* ═══ МОДАЛКА: ПРИГЛАШЕНИЕ НА ВЕЧЕРИНКУ С QR ═════════════════════════ */}
       <Dialog open={modalInvite} onOpenChange={setModalInvite}>
-        <DialogContent className="sm:max-w-[440px] bg-[#121212] border-[#242424] text-white">
+        <DialogContent className="sm:max-w-[440px] bg-[#151122] border-[#28203f] text-white">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2b1f17] border border-[#4d331e] text-amber-400">
             <Share2 size={18} />
           </div>
@@ -1424,7 +1424,7 @@ export function PartyPage() {
                 <input
                   readOnly
                   value={partyInviteUrl}
-                  className="flex-1 bg-[#181818] border border-[#242424] rounded-xl px-3 py-2 text-xs text-amber-400 font-mono outline-none"
+                  className="flex-1 bg-[#1c172d] border border-[#28203f] rounded-xl px-3 py-2 text-xs text-amber-400 font-mono outline-none"
                 />
                 <button
                   onClick={() => {
@@ -1435,7 +1435,7 @@ export function PartyPage() {
                   }}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-950/40 border border-amber-800/40 text-amber-300 text-xs font-semibold hover:bg-amber-900/40 transition-colors shrink-0 cursor-pointer"
                 >
-                  {isLinkCopied ? <Check size={14} className="text-[#ccff00]" /> : <Copy size={14} />}
+                  {isLinkCopied ? <Check size={14} className="text-[#9146ff]" /> : <Copy size={14} />}
                   {isLinkCopied ? "Скопировано" : "Копировать"}
                 </button>
               </div>
@@ -1451,7 +1451,7 @@ export function PartyPage() {
                 <span className="text-xs text-neutral-400">Введи при входе</span>
               </div>
             </div>
-            <div className="rounded-xl bg-neutral-900/60 border border-[#242424] p-4 flex items-center gap-4">
+            <div className="rounded-xl bg-neutral-900/60 border border-[#28203f] p-4 flex items-center gap-4">
               <div className="shrink-0 bg-white rounded-xl p-2 shadow-xs flex items-center justify-center">
                 <QRCode
                   value={partyInviteUrl}

@@ -128,7 +128,7 @@ export function Popup({
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Например ПрогИнж-4 или ПИ"
-                className="w-full rounded-lg border border-neutral-700 bg-[#242424] px-3.5 py-2.5 text-sm text-white placeholder-neutral-500 outline-none transition focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400"
+                className="w-full rounded-lg border border-neutral-700 bg-[#28203f] px-3.5 py-2.5 text-sm text-white placeholder-neutral-500 outline-none transition focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400"
                 required
                 autoFocus
               />
@@ -189,7 +189,7 @@ export function Popup({
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Например, RITM2026"
-                className="w-full rounded-lg border border-neutral-700 bg-[#242424] px-3.5 py-2.5 text-sm text-white placeholder-neutral-500 outline-none transition focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400"
+                className="w-full rounded-lg border border-neutral-700 bg-[#28203f] px-3.5 py-2.5 text-sm text-white placeholder-neutral-500 outline-none transition focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400"
                 required
                 autoFocus
               />
@@ -208,14 +208,14 @@ export function Popup({
 
       {/* Вариант 3: Приглашение друзей на волну */}
       {isInvite && (
-        <DialogContent className={cn("sm:max-w-[480px] text-left bg-[#121212] border-neutral-800 max-h-[90vh] overflow-y-auto", className)}>
+        <DialogContent className={cn("sm:max-w-[480px] text-left bg-[#151122] border-neutral-800 max-h-[90vh] overflow-y-auto", className)}>
           {/* Иконка Share в зеленом блоке */}
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#1c2408] border border-[#3a4d0f] text-[#ccff00]">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#2a1f47] border border-[#3b2d64] text-[#9146ff]">
             <Share2 className="h-5 w-5" />
           </div>
 
           {/* Тег ВМЕСТЕ ГРОМЧЕ */}
-          <p className="text-xs font-bold uppercase tracking-wider text-[#ccff00] -mt-1 m-0">
+          <p className="text-xs font-bold uppercase tracking-wider text-[#9146ff] -mt-1 m-0">
             {badge || "ВМЕСТЕ ГРОМЧЕ"}
           </p>
 
@@ -248,7 +248,7 @@ export function Popup({
                   title="Скопировать код"
                 >
                   {copiedCode ? (
-                    <Check className="h-4 w-4 text-[#ccff00]" />
+                    <Check className="h-4 w-4 text-[#9146ff]" />
                   ) : (
                     <Copy className="h-4 w-4" />
                   )}
@@ -282,7 +282,7 @@ export function Popup({
                   title="Скопировать ссылку"
                 >
                   {copiedLink ? (
-                    <Check className="h-4 w-4 text-[#ccff00]" />
+                    <Check className="h-4 w-4 text-[#9146ff]" />
                   ) : (
                     <Copy className="h-4 w-4" />
                   )}
