@@ -17,12 +17,12 @@ export default function Layout({ children }) {
     location.pathname.startsWith("/party");
 
   return (
-    <SidebarProvider className="bg-[#121212] text-white">
+    <SidebarProvider className="bg-[#0d0b14] text-white">
       <AppSidebar />
-      <div className="flex-1 flex flex-col min-w-0 w-full min-h-screen bg-[#121212] text-white">
+      <div className="flex-1 flex flex-col min-w-0 w-full min-h-screen bg-[#0d0b14] text-white">
         {/* Верхняя шапка: на странице плейлиста переключатель сообществ, SearchBar удален */}
         {isPlaylistPage && (
-          <header className="sticky top-0 z-40 w-full px-4 sm:px-8 pt-4 pb-3 bg-[#121212]/95 backdrop-blur-sm">
+          <header className="sticky top-0 z-40 w-full px-4 sm:px-8 pt-4 pb-3 bg-[#0d0b14]/95 backdrop-blur-sm">
             <CommunitySwitcher />
           </header>
         )}

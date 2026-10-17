@@ -244,11 +244,11 @@ export function MainPage() {
       {/* 1. ГЛАВНЫЙ ЭКРАН (HERO SECTION) */}
       <section className="relative pt-6 pb-12 overflow-hidden">
         {/* Фоновое мягкое неоновое свечение */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[320px] bg-[#a3e635]/10 blur-[130px] rounded-full pointer-events-none" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[320px] bg-[#9146ff]/10 blur-[130px] rounded-full pointer-events-none" />
 
         <div className="relative max-w-5xl mx-auto flex flex-col items-center text-center space-y-8">
           {/* Бейдж новинки / статуса */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1e261d] border border-[#2e402d] text-[#a3e635] text-xs font-semibold tracking-wide uppercase">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1e261d] border border-[#3b2d64] text-[#9146ff] text-xs font-semibold tracking-wide uppercase">
             <Sparkles className="h-3.5 w-3.5 animate-pulse" />
             <span>Вместе громче • Музыка в реальном времени</span>
           </div>
@@ -256,7 +256,7 @@ export function MainPage() {
           {/* Главный заголовок H1 */}
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1] max-w-4xl">
             Один плейлист на всю компанию.{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#a3e635] to-[#bef264]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9146ff] to-[#bef264]">
               Управляйте музыкой вместе.
             </span>
           </h1>
@@ -273,7 +273,7 @@ export function MainPage() {
             <button
               type="button"
               onClick={() => setIsCreateOpen(true)}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-xl bg-[#a3e635] text-black font-bold text-base hover:bg-[#b5f442] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-[#a3e635]/20 cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-xl bg-[#9146ff] text-black font-bold text-base hover:bg-[#b5f442] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-[#9146ff]/20 cursor-pointer"
             >
               <Plus className="h-5 w-5 stroke-[2.5]" />
               <span>Создать плейлист</span>
@@ -282,9 +282,9 @@ export function MainPage() {
             <button
               type="button"
               onClick={() => setIsJoinOpen(true)}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl bg-[#1c1c1c] border border-neutral-800 text-neutral-200 font-semibold text-base hover:bg-[#252525] hover:text-white transition-all cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl bg-[#1c172d] border border-neutral-800 text-neutral-200 font-semibold text-base hover:bg-[#252525] hover:text-white transition-all cursor-pointer"
             >
-              <KeyRound className="h-5 w-5 text-[#a3e635]" />
+              <KeyRound className="h-5 w-5 text-[#9146ff]" />
               <span>Вступить по коду</span>
             </button>
           </div>
@@ -292,34 +292,34 @@ export function MainPage() {
           {/* Быстрые преимущества / микрокопия */}
           <div className="flex flex-wrap items-center justify-center gap-6 pt-3 text-xs sm:text-sm text-neutral-400">
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="h-4 w-4 text-[#a3e635]" />
+              <CheckCircle2 className="h-4 w-4 text-[#9146ff]" />
               Без обязательной регистрации
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="h-4 w-4 text-[#a3e635]" />
+              <CheckCircle2 className="h-4 w-4 text-[#9146ff]" />
               С любого смартфона и ПК
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="h-4 w-4 text-[#a3e635]" />
+              <CheckCircle2 className="h-4 w-4 text-[#9146ff]" />
               Мгновенный вход по QR
             </span>
           </div>
 
           {/* Интерактивное визуальное демо карточки живого плейлиста */}
           <div className="w-full max-w-2xl pt-6">
-            <div className="relative rounded-2xl bg-[#171717] border border-[#262626] p-5 sm:p-6 shadow-2xl text-left overflow-hidden">
+            <div className="relative rounded-2xl bg-[#151122] border border-[#28203f] p-5 sm:p-6 shadow-2xl text-left overflow-hidden">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2.5">
                   <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#a3e635] opacity-75" />
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-[#a3e635]" />
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#9146ff] opacity-75" />
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-[#9146ff]" />
                   </span>
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#a3e635]">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#9146ff]">
                     Сейчас в эфире • {activeCommunity ? `Комната «${activeCommunity.name}»` : "Ваш плейлист"}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-neutral-400 bg-neutral-900/80 px-2.5 py-1 rounded-full border border-neutral-800">
-                  <Users className="h-3.5 w-3.5 text-[#a3e635]" />
+                  <Users className="h-3.5 w-3.5 text-[#9146ff]" />
                   <span>{activeCommunity?.member_count || 1} участников</span>
                 </div>
               </div>
@@ -327,7 +327,7 @@ export function MainPage() {
               {/* Если в сообществе нет треков */}
               {communityTracks.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 px-4 text-center rounded-xl bg-neutral-900/40 border border-neutral-800/60 my-2">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#233525] border border-[#2e4730] text-[#a3e635] mb-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#2a1f47] border border-[#3b2d64] text-[#9146ff] mb-3">
                     <Music className="h-6 w-6" />
                   </div>
                   <h4 className="text-base font-bold text-white mb-1">
@@ -339,7 +339,7 @@ export function MainPage() {
                   <button
                     type="button"
                     onClick={() => navigate(activeCommunity ? `/community/${activeCommunity.id}` : "/playlist")}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#a3e635] text-black text-xs font-bold hover:bg-[#b5f442] transition-all cursor-pointer shadow-md shadow-[#a3e635]/15"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#9146ff] text-black text-xs font-bold hover:bg-[#b5f442] transition-all cursor-pointer shadow-md shadow-[#9146ff]/15"
                   >
                     <Plus className="h-4 w-4 stroke-[2.5]" />
                     <span>Предложить трек в плейлист</span>
@@ -352,7 +352,7 @@ export function MainPage() {
                     <button
                       type="button"
                       onClick={handleTogglePreviewPlay}
-                      className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-[#293d2c] text-[#a3e635] overflow-hidden cursor-pointer group"
+                      className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-[#322359] text-[#9146ff] overflow-hidden cursor-pointer group"
                       title={isPlayingPreview ? "Поставить на паузу" : "Послушать"}
                     >
                       <Headphones className="h-7 w-7" />
@@ -363,7 +363,7 @@ export function MainPage() {
                         )}
                       >
                         {isPlayingPreview ? (
-                          <Pause className="h-6 w-6 text-[#a3e635] fill-[#a3e635]" />
+                          <Pause className="h-6 w-6 text-[#9146ff] fill-[#9146ff]" />
                         ) : (
                           <Play className="h-6 w-6 text-white fill-white" />
                         )}
@@ -377,7 +377,7 @@ export function MainPage() {
                         {currentTrack?.artist} • Добавил {currentTrack?.contributor || currentTrack?.created_by_name || "@участник"}
                       </div>
                       <div className="w-full bg-neutral-800 h-1.5 rounded-full mt-2.5 overflow-hidden">
-                        <div className="bg-[#a3e635] h-full w-2/3 rounded-full animate-pulse" />
+                        <div className="bg-[#9146ff] h-full w-2/3 rounded-full animate-pulse" />
                       </div>
                     </div>
                     <button
@@ -385,12 +385,12 @@ export function MainPage() {
                       onClick={handleVote}
                       className={`flex flex-col items-center justify-center px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
                         upvoted
-                          ? "bg-[#233525] border-[#2e4730] text-[#a3e635]"
+                          ? "bg-[#2a1f47] border-[#3b2d64] text-[#9146ff]"
                           : "bg-neutral-800 border-neutral-700 text-neutral-300 hover:text-white"
                       }`}
                       title="Поднять в очереди"
                     >
-                      <Flame className={`h-4 w-4 ${upvoted ? "fill-[#a3e635]" : ""}`} />
+                      <Flame className={`h-4 w-4 ${upvoted ? "fill-[#9146ff]" : ""}`} />
                       <span className="text-xs font-bold mt-0.5">{votesCount}</span>
                     </button>
                   </div>
@@ -409,7 +409,7 @@ export function MainPage() {
                           <span className="truncate">
                             {i + 1}. {track.artist} — {track.title}
                           </span>
-                          <span className="text-[#a3e635] font-semibold flex items-center gap-1">
+                          <span className="text-[#9146ff] font-semibold flex items-center gap-1">
                             <Flame className="h-3 w-3" /> {track.vote_score ?? track.score ?? 0} голосов
                           </span>
                         </div>
@@ -431,7 +431,7 @@ export function MainPage() {
                 <button
                   type="button"
                   onClick={() => navigate(activeCommunity ? `/community/${activeCommunity.id}` : "/playlist")}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#233525] border border-[#2e4730] text-[#a3e635] text-xs font-bold hover:bg-[#2b412e] transition-all cursor-pointer shrink-0"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#2a1f47] border border-[#3b2d64] text-[#9146ff] text-xs font-bold hover:bg-[#3b2d64] transition-all cursor-pointer shrink-0"
                 >
                   <span>Перейти в плейлист</span>
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -445,7 +445,7 @@ export function MainPage() {
       {/* 2. БЛОК ВОЗМОЖНОСТЕЙ (FEATURES & BENEFITS) */}
       <section id="features" className="max-w-6xl mx-auto space-y-12">
         <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <h2 className="text-xs font-bold tracking-widest uppercase text-[#a3e635]">
+          <h2 className="text-xs font-bold tracking-widest uppercase text-[#9146ff]">
             Возможности сервиса
           </h2>
           <p className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
@@ -459,9 +459,9 @@ export function MainPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Фича 1: Совместное редактирование */}
-          <div className="rounded-2xl bg-[#171717] border border-[#262626] p-7 space-y-4 hover:border-neutral-700 transition-all flex flex-col justify-between">
+          <div className="rounded-2xl bg-[#151122] border border-[#28203f] p-7 space-y-4 hover:border-neutral-700 transition-all flex flex-col justify-between">
             <div className="space-y-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#233525] border border-[#2e4730] text-[#a3e635]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#2a1f47] border border-[#3b2d64] text-[#9146ff]">
                 <Radio className="h-6 w-6" />
               </div>
               <h3 className="text-xl font-bold text-white">
@@ -473,16 +473,16 @@ export function MainPage() {
                 страницы.
               </p>
             </div>
-            <div className="pt-4 border-t border-neutral-800/80 flex items-center gap-2 text-xs font-semibold text-[#a3e635]">
+            <div className="pt-4 border-t border-neutral-800/80 flex items-center gap-2 text-xs font-semibold text-[#9146ff]">
               <Zap className="h-3.5 w-3.5" />
               <span>Мгновенный отклик WebSocket</span>
             </div>
           </div>
 
           {/* Фича 2: Приглашение друзей */}
-          <div className="rounded-2xl bg-[#171717] border border-[#262626] p-7 space-y-4 hover:border-neutral-700 transition-all flex flex-col justify-between">
+          <div className="rounded-2xl bg-[#151122] border border-[#28203f] p-7 space-y-4 hover:border-neutral-700 transition-all flex flex-col justify-between">
             <div className="space-y-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#233525] border border-[#2e4730] text-[#a3e635]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#2a1f47] border border-[#3b2d64] text-[#9146ff]">
                 <Share2 className="h-6 w-6" />
               </div>
               <h3 className="text-xl font-bold text-white">
@@ -494,16 +494,16 @@ export function MainPage() {
                 занимает 3 секунды.
               </p>
             </div>
-            <div className="pt-4 border-t border-neutral-800/80 flex items-center gap-2 text-xs font-semibold text-[#a3e635]">
+            <div className="pt-4 border-t border-neutral-800/80 flex items-center gap-2 text-xs font-semibold text-[#9146ff]">
               <QrCode className="h-3.5 w-3.5" />
               <span>QR-код готов к печати или экрану</span>
             </div>
           </div>
 
           {/* Фича 3: Голосование за треки */}
-          <div className="rounded-2xl bg-[#171717] border border-[#262626] p-7 space-y-4 hover:border-neutral-700 transition-all flex flex-col justify-between">
+          <div className="rounded-2xl bg-[#151122] border border-[#28203f] p-7 space-y-4 hover:border-neutral-700 transition-all flex flex-col justify-between">
             <div className="space-y-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#233525] border border-[#2e4730] text-[#a3e635]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#2a1f47] border border-[#3b2d64] text-[#9146ff]">
                 <Flame className="h-6 w-6" />
               </div>
               <h3 className="text-xl font-bold text-white">
@@ -515,7 +515,7 @@ export function MainPage() {
                 формируя идеальный сетлист.
               </p>
             </div>
-            <div className="pt-4 border-t border-neutral-800/80 flex items-center gap-2 text-xs font-semibold text-[#a3e635]">
+            <div className="pt-4 border-t border-neutral-800/80 flex items-center gap-2 text-xs font-semibold text-[#9146ff]">
               <Sliders className="h-3.5 w-3.5" />
               <span>Умная сортировка по апвоутам</span>
             </div>
@@ -526,7 +526,7 @@ export function MainPage() {
       {/* 3. РАЗДЕЛ «КАК ЭТО РАБОТАЕТ» (HOW IT WORKS) */}
       <section id="how-it-works" className="max-w-5xl mx-auto space-y-12">
         <div className="text-center space-y-3 max-w-xl mx-auto">
-          <h2 className="text-xs font-bold tracking-widest uppercase text-[#a3e635]">
+          <h2 className="text-xs font-bold tracking-widest uppercase text-[#9146ff]">
             Пошаговый сценарий
           </h2>
           <p className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
@@ -539,8 +539,8 @@ export function MainPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Шаг 1 */}
-          <div className="relative rounded-2xl bg-[#171717] border border-[#262626] p-6 space-y-3">
-            <div className="text-3xl font-black text-[#a3e635]/30">01</div>
+          <div className="relative rounded-2xl bg-[#151122] border border-[#28203f] p-6 space-y-3">
+            <div className="text-3xl font-black text-[#9146ff]/30">01</div>
             <h4 className="text-lg font-bold text-white">Создай комнату</h4>
             <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
               Нажми «Создать сообщество» в пару кликов и задай название для встречи или тусовки.
@@ -548,8 +548,8 @@ export function MainPage() {
           </div>
 
           {/* Шаг 2 */}
-          <div className="relative rounded-2xl bg-[#171717] border border-[#262626] p-6 space-y-3">
-            <div className="text-3xl font-black text-[#a3e635]/30">02</div>
+          <div className="relative rounded-2xl bg-[#151122] border border-[#28203f] p-6 space-y-3">
+            <div className="text-3xl font-black text-[#9146ff]/30">02</div>
             <h4 className="text-lg font-bold text-white">Позови друзей</h4>
             <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
               Отправь ссылку в групповой чат или покажи QR-код для моментального сканирования.
@@ -557,8 +557,8 @@ export function MainPage() {
           </div>
 
           {/* Шаг 3 */}
-          <div className="relative rounded-2xl bg-[#171717] border border-[#262626] p-6 space-y-3">
-            <div className="text-3xl font-black text-[#a3e635]/30">03</div>
+          <div className="relative rounded-2xl bg-[#151122] border border-[#28203f] p-6 space-y-3">
+            <div className="text-3xl font-black text-[#9146ff]/30">03</div>
             <h4 className="text-lg font-bold text-white">Добавляйте музыку</h4>
             <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
               Ищите треки через строку поиска сверху и закидывайте их в общий плейлист.
@@ -566,8 +566,8 @@ export function MainPage() {
           </div>
 
           {/* Шаг 4 */}
-          <div className="relative rounded-2xl bg-[#171717] border border-[#262626] p-6 space-y-3">
-            <div className="text-3xl font-black text-[#a3e635]/30">04</div>
+          <div className="relative rounded-2xl bg-[#151122] border border-[#28203f] p-6 space-y-3">
+            <div className="text-3xl font-black text-[#9146ff]/30">04</div>
             <h4 className="text-lg font-bold text-white">Слушайте и голосуйте</h4>
             <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
               Слушайте трек за треком и поднимайте в топ песни, которые нравятся компании.
@@ -578,7 +578,7 @@ export function MainPage() {
 
       {/* 4. БЛОК ПРИЗЫВА К ДЕЙСТВИЮ (PRE-FOOTER CTA BANNER) */}
       <section className="max-w-5xl mx-auto">
-        <div className="relative rounded-3xl bg-gradient-to-br from-[#1c2a1e] via-[#171717] to-[#121212] border border-[#2e4730] p-8 sm:p-12 overflow-hidden text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-8">
+        <div className="relative rounded-3xl bg-gradient-to-br from-[#1c2a1e] via-[#151122] to-[#0d0b14] border border-[#3b2d64] p-8 sm:p-12 overflow-hidden text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-8">
           <div className="space-y-3 max-w-xl">
             <h3 className="text-2xl sm:text-3xl font-extrabold text-white">
               Готовы включить свою волну прямо сейчас?
@@ -591,7 +591,7 @@ export function MainPage() {
           <button
             type="button"
             onClick={() => setIsCreateOpen(true)}
-            className="shrink-0 inline-flex items-center gap-2 px-7 py-4 rounded-xl bg-[#a3e635] text-black font-bold text-base hover:bg-[#b5f442] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shadow-xl shadow-[#a3e635]/20"
+            className="shrink-0 inline-flex items-center gap-2 px-7 py-4 rounded-xl bg-[#9146ff] text-black font-bold text-base hover:bg-[#b5f442] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shadow-xl shadow-[#9146ff]/20"
           >
             <Sparkles className="h-5 w-5" />
             <span>Начать бесплатно</span>
@@ -604,7 +604,7 @@ export function MainPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
           <div className="space-y-3 col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 text-xl font-black text-white tracking-tight">
-              ритм<span className="text-[#a3e635]">.</span>
+              ритм<span className="text-[#9146ff]">.</span>
             </div>
             <p className="text-neutral-400 text-xs leading-relaxed max-w-xs">
               Веб-сервис для синхронного создания совместных музыкальных плейлистов и вечеринок.
