@@ -24,6 +24,7 @@ import { Popup } from "@/components/Popup";
 import { cn } from "@/lib/utils";
 import { audioService } from "@/lib/audioService";
 
+
 export function MainPage() {
   const navigate = useNavigate();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -240,6 +241,7 @@ export function MainPage() {
   };
 
   return (
+    
     <div className="w-full text-white space-y-24 pb-16">
       {/* 1. ГЛАВНЫЙ ЭКРАН (HERO SECTION) */}
       <section className="relative pt-6 pb-12 overflow-hidden">

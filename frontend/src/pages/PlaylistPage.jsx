@@ -1089,7 +1089,7 @@ export function PlaylistPage() {
             className="h-10 px-4 rounded-xl bg-[#1c231d] border border-[#2e402d] hover:bg-[#243025] hover:border-[#3c543b] text-white font-medium text-sm transition-all inline-flex items-center gap-2 cursor-pointer shadow-xs"
           >
             <Plus size={16} className="text-[#a3e635]" />
-            <span className="text-white font-medium">Предложить трек</span>
+            <span className="text-white font-medium">{playlist.creatorId === user.id ? "Добавить трек" : "Предложить трек"}</span>
           </button>
 
           {/* Элемент "Владелец" / "Модератор" — в точности такого же размера и формата (h-10, px-4, rounded-xl, text-sm) */}

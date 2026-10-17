@@ -585,3 +585,46 @@ class RoundTopSnapshot(Base):
         Index("ix_round_top_snapshots_round_id", "round_id"),
         Index("ix_round_top_snapshots_room_id", "room_id"),
     )
+
+
+class LibraryTrack(Base):
+    """Studio track catalog available for members to add to community playlists."""
+
+    __tablename__ = "library_tracks"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    key: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    artist: Mapped[str] = mapped_column(
+        String(255), server_default=text("''"), nullable=False
+    )
+    genre: Mapped[str] = mapped_column(
+        String(100), server_default=text("''"), nullable=False
+    )
+    duration: Mapped[str] = mapped_column(
+        String(50), server_default=text("''"), nullable=False
+    )
+    duration_seconds: Mapped[int] = mapped_column(
+        Integer, server_default=text("0"), nullable=False
+    )
+    color: Mapped[str] = mapped_column(
+        String(50), server_default=text("'#a3e635'"), nullable=False
+    )
+    gradient: Mapped[str] = mapped_column(
+        String(255), server_default=text("''"), nullable=False
+    )
+    description: Mapped[str] = mapped_column(
+        Text, server_default=text("''"), nullable=False
+    )
+    file: Mapped[str | None] = mapped_column(String(255))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+    __table_args__ = (
+        Index("ix_library_tracks_key", "key"),
+        Index("ix_library_tracks_genre", "genre"),
+    )
+

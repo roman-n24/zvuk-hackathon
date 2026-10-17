@@ -26,6 +26,7 @@ from app.database import get_db
 from app.network import frontend_base_url
 from app.models import (
     Favorite,
+    LibraryTrack,
     MemberRole,
     ModerationLog,
     ModerationStatus,
@@ -209,6 +210,41 @@ class CompleteRequest(BaseModel):
     queue_version: int = Field(ge=0)
 
 
+class LibraryTrackCreate(BaseModel):
+    key: str
+    title: str
+    artist: str = ""
+    genre: str = ""
+    duration: str = ""
+    duration_seconds: int = 0
+    color: str = "#a3e635"
+    gradient: str = ""
+    description: str = ""
+    file: str | None = None
+
+
+def _get_library_items(db: Session) -> list[dict]:
+    db_tracks = db.scalars(select(LibraryTrack).order_by(LibraryTrack.created_at.asc())).all()
+    if db_tracks:
+        return [
+            {
+                "id": str(t.id),
+                "key": t.key,
+                "title": t.title,
+                "artist": t.artist,
+                "genre": t.genre,
+                "duration": t.duration,
+                "duration_seconds": t.duration_seconds,
+                "color": t.color,
+                "gradient": t.gradient,
+                "description": t.description,
+                "file": t.file,
+            }
+            for t in db_tracks
+        ]
+    return LIBRARY
+
+
 def _clean(value: str, limit: int) -> str:
     return re.sub(r"\s+", " ", value or "").strip()[:limit]
 
@@ -331,7 +367,7 @@ def bootstrap(
             }
             for room, role in memberships
         ],
-        "library": LIBRARY,
+        "library": _get_library_items(db),
         "sharing": {
             "base_url": frontend_base_url(),
             "configured": bool(settings.app_base_url.strip()),
@@ -607,7 +643,7 @@ def _community_state(db: Session, room: Room, membership: RoomMember, user: User
             {"id": member_user.id, "display_name": member_user.display_name, "role": member_row.role.value, "joined_at": member_row.joined_at}
             for member_user, member_row in members
         ],
-        "library": LIBRARY,
+        "library": _get_library_items(db),
         "pending_count": sum(track["status"] == "pending" for track in tracks_payload),
         "stats": {
             "votes": db.scalar(select(func.count()).select_from(Vote).join(QueueItem).where(QueueItem.round_id == playlist_round.id)),
@@ -752,6 +788,114 @@ def moderation_history(
     return {"logs": [{"action": log.action, "details": log.details, "created_at": log.created_at, "display_name": actor.display_name if actor else "Система"} for log, actor in logs]}
 
 
+@router.get("/library")
+def get_library(
+    db: Session = Depends(get_db),
+    genre: str | None = None,
+):
+    """Get all studio library tracks from the database, optionally filtered by genre."""
+    stmt = select(LibraryTrack).order_by(LibraryTrack.created_at.asc())
+    if genre and genre != "Все жанры":
+        stmt = stmt.where(LibraryTrack.genre == genre)
+    tracks = db.scalars(stmt).all()
+
+    if not tracks:
+        from app.seed import seed_library_tracks
+        seed_library_tracks(db)
+        tracks = db.scalars(stmt).all()
+
+    all_tracks = db.scalars(select(LibraryTrack).order_by(LibraryTrack.created_at.asc())).all()
+    all_genres = ["Все жанры"] + sorted(list({t.genre for t in all_tracks if t.genre}))
+
+    track_list = [
+        {
+            "id": str(t.id),
+            "key": t.key,
+            "title": t.title,
+            "artist": t.artist,
+            "genre": t.genre,
+            "duration": t.duration,
+            "duration_seconds": t.duration_seconds,
+            "color": t.color,
+            "gradient": t.gradient,
+            "description": t.description,
+            "file": t.file,
+        }
+        for t in tracks
+    ]
+    return {
+        "tracks": track_list,
+        "genres": all_genres,
+    }
+
+
+@router.post("/library", status_code=201)
+def create_library_track(
+    payload: LibraryTrackCreate,
+    db: Session = Depends(get_db),
+):
+    """Add a new studio track to the database."""
+    existing = db.scalar(select(LibraryTrack).where(LibraryTrack.key == payload.key))
+    if existing:
+        raise HTTPException(status_code=409, detail="Трек с таким ключом уже существует")
+
+    dur_str = payload.duration
+    if not dur_str and payload.duration_seconds > 0:
+        m = payload.duration_seconds // 60
+        s = payload.duration_seconds % 60
+        dur_str = f"{m}:{s:02d}"
+
+    track = LibraryTrack(
+        key=payload.key,
+        title=payload.title,
+        artist=payload.artist,
+        genre=payload.genre,
+        duration=dur_str,
+        duration_seconds=payload.duration_seconds,
+        color=payload.color or "#a3e635",
+        gradient=payload.gradient or "from-violet-600 via-purple-700 to-indigo-900",
+        description=payload.description,
+        file=payload.file,
+    )
+    db.add(track)
+    db.commit()
+    db.refresh(track)
+    return {
+        "id": str(track.id),
+        "key": track.key,
+        "title": track.title,
+        "artist": track.artist,
+        "genre": track.genre,
+        "duration": track.duration,
+        "duration_seconds": track.duration_seconds,
+        "color": track.color,
+        "gradient": track.gradient,
+        "description": track.description,
+        "file": track.file,
+    }
+
+
+@router.delete("/library/{key_or_id}")
+def delete_library_track(
+    key_or_id: str,
+    db: Session = Depends(get_db),
+):
+    """Delete a studio track from the database."""
+    track = None
+    try:
+        track_uuid = uuid.UUID(key_or_id)
+        track = db.get(LibraryTrack, track_uuid)
+    except ValueError:
+        pass
+    if track is None:
+        track = db.scalar(select(LibraryTrack).where(LibraryTrack.key == key_or_id))
+    if track is None:
+        raise HTTPException(status_code=404, detail="Трек не найден")
+    db.delete(track)
+    db.commit()
+    return {"ok": True, "deleted": key_or_id}
+
+
 @router.post("/communities/{room_id}/tracks/library", status_code=201)
 def add_library_track(
     room_id: uuid.UUID,
@@ -762,7 +906,20 @@ def add_library_track(
     room = _room(db, room_id)
     membership = _member(db, room_id, user.id)
     track_key = payload.get("key") or payload.get("library_key")
-    item = next((entry for entry in LIBRARY if entry["key"] == track_key), None)
+
+    # Search in DB first
+    lib_track = db.scalar(select(LibraryTrack).where(LibraryTrack.key == track_key))
+    if lib_track is not None:
+        item = {
+            "key": lib_track.key,
+            "title": lib_track.title,
+            "artist": lib_track.artist,
+            "genre": lib_track.genre,
+            "duration_seconds": lib_track.duration_seconds,
+        }
+    else:
+        item = next((entry for entry in LIBRARY if entry["key"] == track_key), None)
+
     if item is None:
         raise HTTPException(status_code=404, detail="Трек отсутствует в библиотеке")
     duplicate = db.scalar(select(Track.id).where(Track.room_id == room_id, Track.library_key == item["key"]))
