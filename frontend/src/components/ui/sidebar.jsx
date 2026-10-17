@@ -57,7 +57,7 @@ export function Sidebar({ className, children, ...props }) {
     <aside
       data-state={open ? "expanded" : "collapsed"}
       className={cn(
-        "relative flex flex-col border-r border-[#28203f] bg-[#151122] text-neutral-100 transition-all duration-300 ease-in-out shrink-0 select-none overflow-hidden",
+        "relative flex flex-col border-r border-[#1f2e27] bg-[#0f1713] text-neutral-100 transition-all duration-300 ease-in-out shrink-0 select-none overflow-hidden",
         open ? "w-64" : "w-[68px]",
         className
       )}
@@ -81,7 +81,7 @@ export function SidebarTrigger({ className, children, onClick, ...props }) {
         toggleSidebar();
       }}
       className={cn(
-        "inline-flex h-8 w-8 items-center justify-center rounded-lg text-neutral-400 hover:bg-[#28203f] hover:text-white transition-colors cursor-pointer shrink-0",
+        "inline-flex h-8 w-8 items-center justify-center rounded-lg text-neutral-400 hover:bg-[#1f2e27] hover:text-white transition-colors cursor-pointer shrink-0",
         className
       )}
       aria-label={open ? "Свернуть меню" : "Развернуть меню"}
@@ -98,7 +98,7 @@ export function SidebarHeader({ className, ...props }) {
   return (
     <div
       className={cn(
-        "border-b border-[#28203f]/60 p-3",
+        "border-b border-[#1f2e27]/60 p-3",
         open ? "flex items-center justify-between" : "flex flex-col items-center justify-center gap-2 px-2",
         className
       )}
@@ -182,9 +182,9 @@ export function SidebarMenuButton({
 }) {
   const { open } = useSidebar();
   const baseClasses = cn(
-    "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-neutral-300 transition-colors hover:bg-[#28203f] hover:text-white [&>svg]:h-5 [&>svg]:w-5 [&>svg]:shrink-0",
+    "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-neutral-300 transition-colors hover:bg-[#1f2e27] hover:text-white [&>svg]:h-5 [&>svg]:w-5 [&>svg]:shrink-0",
     !open && "justify-center px-0 py-2.5",
-    isActive && "bg-[#28203f] text-white font-semibold",
+    isActive && "bg-[#1f2e27] text-white font-semibold",
     className
   );
 
@@ -206,7 +206,7 @@ export function SidebarSeparator({ className, ...props }) {
   return (
     <div
       role="separator"
-      className={cn("mx-2 my-2 h-px bg-[#28203f]", className)}
+      className={cn("mx-2 my-2 h-px bg-[#1f2e27]", className)}
       {...props}
     />
   );

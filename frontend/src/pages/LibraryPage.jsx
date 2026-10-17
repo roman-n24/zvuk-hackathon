@@ -254,14 +254,14 @@ export function LibraryPage() {
     <div className="w-full text-white space-y-8 pb-24">
       {/* Тост */}
       {toast && (
-        <div className="fixed top-5 right-5 z-[200] bg-[#181328] border border-[#3b2d64] text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2">
+        <div className="fixed top-5 right-5 z-[200] bg-[#131e19] border border-[#1d4d38] text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2">
           <span>{toast}</span>
         </div>
       )}
 
       {/* Заголовок страницы */}
       <div className="space-y-3">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1e261d] border border-[#3b2d64] text-[#9146ff] text-xs font-semibold uppercase tracking-wider">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1e261d] border border-[#1d4d38] text-[#00e599] text-xs font-semibold uppercase tracking-wider">
           <Headphones className="h-3.5 w-3.5" />
           <span>Студийная фонотека Volna Studio</span>
         </div>
@@ -283,7 +283,7 @@ export function LibraryPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Поиск по названию или описанию..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#151122] border border-[#28203f] text-sm text-white placeholder-neutral-500 outline-none focus:border-[#9146ff] transition-colors"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#0f1713] border border-[#1f2e27] text-sm text-white placeholder-neutral-500 outline-none focus:border-[#00e599] transition-colors"
             />
           </div>
 
@@ -295,8 +295,8 @@ export function LibraryPage() {
                 className={cn(
                   "px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer",
                   selectedGenre === g
-                    ? "bg-[#2a1f47] border border-[#3b2d64] text-[#9146ff]"
-                    : "bg-[#151122] border border-[#28203f] text-neutral-400 hover:text-white"
+                    ? "bg-[#103324] border border-[#1d4d38] text-[#00e599]"
+                    : "bg-[#0f1713] border border-[#1f2e27] text-neutral-400 hover:text-white"
                 )}
               >
                 {g}
@@ -314,10 +314,10 @@ export function LibraryPage() {
             <div
               key={track.key}
               className={cn(
-                "rounded-2xl border p-5 flex flex-col justify-between transition-all group bg-[#151122]",
+                "rounded-2xl border p-5 flex flex-col justify-between transition-all group bg-[#0f1713]",
                 isPlaying
-                  ? "border-[#3b2d64] shadow-lg shadow-[#9146ff]/5 bg-gradient-to-b from-[#1c241d] to-[#151122]"
-                  : "border-[#28203f] hover:border-neutral-700"
+                  ? "border-[#1d4d38] shadow-lg shadow-[#00e599]/5 bg-gradient-to-b from-[#1c241d] to-[#0f1713]"
+                  : "border-[#1f2e27] hover:border-neutral-700"
               )}
             >
               <div className="space-y-4">
@@ -338,7 +338,7 @@ export function LibraryPage() {
                       )}
                     >
                       {isPlaying ? (
-                        <Pause className="h-6 w-6 text-[#9146ff] fill-[#9146ff]" />
+                        <Pause className="h-6 w-6 text-[#00e599] fill-[#00e599]" />
                       ) : (
                         <Play className="h-6 w-6 text-white fill-white ml-0.5" />
                       )}
@@ -347,7 +347,7 @@ export function LibraryPage() {
 
                   {/* Бейдж жанра и длительность */}
                   <div className="flex flex-col items-end gap-1">
-                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#1e261d] border border-[#3b2d64] text-[#9146ff]">
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#1e261d] border border-[#1d4d38] text-[#00e599]">
                       {track.genre}
                     </span>
                     <span className="text-xs text-neutral-500 tabular-nums font-mono">
@@ -358,7 +358,7 @@ export function LibraryPage() {
 
                 {/* Инфо о треке */}
                 <div>
-                  <h3 className="text-lg font-bold text-white group-hover:text-[#9146ff] transition-colors truncate">
+                  <h3 className="text-lg font-bold text-white group-hover:text-[#00e599] transition-colors truncate">
                     {track.title}
                   </h3>
                   <p className="text-xs text-neutral-400 mt-0.5">{track.artist}</p>
@@ -376,8 +376,8 @@ export function LibraryPage() {
                   className={cn(
                     "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer",
                     isPlaying
-                      ? "bg-[#2a1f47] text-[#9146ff]"
-                      : "bg-[#201a35] text-neutral-300 hover:text-white"
+                      ? "bg-[#103324] text-[#00e599]"
+                      : "bg-[#1b2a23] text-neutral-300 hover:text-white"
                   )}
                 >
                   {isPlaying ? (
@@ -396,7 +396,7 @@ export function LibraryPage() {
                 <button
                   type="button"
                   onClick={() => handleOpenAddModal(track)}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#2a1f47] border border-[#3b2d64] text-[#9146ff] text-xs font-semibold hover:bg-[#3b2d64] transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#103324] border border-[#1d4d38] text-[#00e599] text-xs font-semibold hover:bg-[#1d4d38] transition-colors cursor-pointer"
                   title="Добавить в плейлист комнаты"
                 >
                   <FolderPlus className="h-3.5 w-3.5" />
@@ -409,7 +409,7 @@ export function LibraryPage() {
       </div>
 
       {filtered.length === 0 && (
-        <div className="text-center py-16 rounded-2xl bg-[#151122] border border-[#28203f]">
+        <div className="text-center py-16 rounded-2xl bg-[#0f1713] border border-[#1f2e27]">
           <Music className="h-10 w-10 text-neutral-600 mx-auto mb-3" />
           <h3 className="text-base font-bold text-white">Треки не найдены</h3>
           <p className="text-xs text-neutral-500 mt-1">
@@ -420,11 +420,11 @@ export function LibraryPage() {
 
       {/* Модальное окно выбора сообщества для добавления */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="sm:max-w-[440px] bg-[#151122] border-[#28203f] text-white">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2a1f47] border border-[#3b2d64] text-[#9146ff]">
+        <DialogContent className="sm:max-w-[440px] bg-[#0f1713] border-[#1f2e27] text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#103324] border border-[#1d4d38] text-[#00e599]">
             <FolderPlus className="h-5 w-5" />
           </div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-[#9146ff] m-0">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-[#00e599] m-0">
             ДОБАВЛЕНИЕ В ОЧЕРЕДЬ
           </p>
           <DialogTitle className="text-xl font-bold text-white m-0">
@@ -442,21 +442,21 @@ export function LibraryPage() {
                 <button
                   key={c.id}
                   onClick={() => handleAddToCommunity(c.id, c.name)}
-                  className="flex items-center justify-between p-3 rounded-xl bg-[#201a35] border border-neutral-800 hover:border-[#3b2d64] hover:bg-[#233024] transition-all text-left group cursor-pointer"
+                  className="flex items-center justify-between p-3 rounded-xl bg-[#1b2a23] border border-neutral-800 hover:border-[#1d4d38] hover:bg-[#233024] transition-all text-left group cursor-pointer"
                 >
                   <div className="min-w-0">
-                    <div className="text-sm font-bold text-white group-hover:text-[#9146ff] transition-colors truncate">
+                    <div className="text-sm font-bold text-white group-hover:text-[#00e599] transition-colors truncate">
                       {c.name}
                     </div>
                     <div className="text-xs text-neutral-500">
                       Код: {c.invite_code || "ZVUK26"}
                     </div>
                   </div>
-                  <Plus className="h-4 w-4 text-neutral-400 group-hover:text-[#9146ff] transition-colors shrink-0" />
+                  <Plus className="h-4 w-4 text-neutral-400 group-hover:text-[#00e599] transition-colors shrink-0" />
                 </button>
               ))
             ) : (
-              <div className="p-4 rounded-xl bg-[#201a35] text-center text-xs text-neutral-400">
+              <div className="p-4 rounded-xl bg-[#1b2a23] text-center text-xs text-neutral-400">
                 У вас пока нет комнат. Создайте первое сообщество на главной странице.
               </div>
             )}

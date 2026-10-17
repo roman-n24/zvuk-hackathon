@@ -77,33 +77,33 @@ export function RegisterPage() {
   return (
     <div className="relative min-h-[calc(100vh-120px)] flex flex-col items-center justify-center py-10 px-4">
       {/* Мягкое фоновое неоновое свечение в стиле ритм. */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[350px] bg-[#9146ff]/10 blur-[130px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[350px] bg-[#00e599]/10 blur-[130px] rounded-full pointer-events-none" />
 
       <div className="relative w-full max-w-md">
         {/* Карточка формы */}
-        <div className="rounded-3xl bg-[#151122] border border-[#28203f] p-8 sm:p-10 shadow-2xl backdrop-blur-md">
+        <div className="rounded-3xl bg-[#0f1713] border border-[#1f2e27] p-8 sm:p-10 shadow-2xl backdrop-blur-md">
           {/* Верхняя плашка с логотипом */}
           <div className="flex flex-col items-center text-center space-y-3 mb-8">
             <Link
               to="/"
-              className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-2xl bg-[#1e1633] border border-[#3b2d64] text-[#9146ff] hover:bg-[#2a1f47] transition-colors select-none"
+              className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-2xl bg-[#0b2419] border border-[#1d4d38] text-[#00e599] hover:bg-[#103324] transition-colors select-none"
             >
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#9146ff] text-black">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#00e599] text-black">
                 <svg
                   viewBox="0 0 36 36"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-4 w-4"
                 >
-                  <rect x="7.5" y="13" width="3" height="10" rx="1.5" fill="#151122" />
-                  <rect x="12.5" y="9" width="3" height="18" rx="1.5" fill="#151122" />
-                  <rect x="17.5" y="6" width="3" height="24" rx="1.5" fill="#151122" />
-                  <rect x="22.5" y="9" width="3" height="18" rx="1.5" fill="#151122" />
-                  <rect x="27.5" y="13" width="3" height="10" rx="1.5" fill="#151122" />
+                  <rect x="7.5" y="13" width="3" height="10" rx="1.5" fill="#0f1713" />
+                  <rect x="12.5" y="9" width="3" height="18" rx="1.5" fill="#0f1713" />
+                  <rect x="17.5" y="6" width="3" height="24" rx="1.5" fill="#0f1713" />
+                  <rect x="22.5" y="9" width="3" height="18" rx="1.5" fill="#0f1713" />
+                  <rect x="27.5" y="13" width="3" height="10" rx="1.5" fill="#0f1713" />
                 </svg>
               </div>
               <span className="text-lg font-bold tracking-tight text-white flex items-baseline">
-                ритм<span className="text-[#9146ff] text-lg font-black">.</span>
+                ритм<span className="text-[#00e599] text-lg font-black">.</span>
               </span>
             </Link>
 
@@ -118,13 +118,13 @@ export function RegisterPage() {
           </div>
 
           {/* Переключатель вкладок Регистрация / Вход */}
-          <div className="grid grid-cols-2 p-1 mb-6 rounded-xl bg-[#201a35] border border-[#352b54]">
+          <div className="grid grid-cols-2 p-1 mb-6 rounded-xl bg-[#1b2a23] border border-[#2b4036]">
             <button
               type="button"
               onClick={() => switchMode("register")}
               className={`py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all cursor-pointer ${
                 mode === "register"
-                  ? "bg-[#2f264a] text-white shadow-xs"
+                  ? "bg-[#25382f] text-white shadow-xs"
                   : "text-neutral-400 hover:text-white"
               }`}
             >
@@ -135,7 +135,7 @@ export function RegisterPage() {
               onClick={() => switchMode("login")}
               className={`py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all cursor-pointer ${
                 mode === "login"
-                  ? "bg-[#2f264a] text-white shadow-xs"
+                  ? "bg-[#25382f] text-white shadow-xs"
                   : "text-neutral-400 hover:text-white"
               }`}
             >
@@ -176,7 +176,7 @@ export function RegisterPage() {
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="Например, Алексей Смирнов"
                     autoComplete="name"
-                    className="w-full h-11 pl-10 pr-4 rounded-xl bg-[#201a35] border border-[#352b54] text-white text-sm placeholder-neutral-500 outline-none transition focus:border-[#9146ff] focus:ring-1 focus:ring-[#9146ff]"
+                    className="w-full h-11 pl-10 pr-4 rounded-xl bg-[#1b2a23] border border-[#2b4036] text-white text-sm placeholder-neutral-500 outline-none transition focus:border-[#00e599] focus:ring-1 focus:ring-[#00e599]"
                   />
                 </div>
               </div>
@@ -203,7 +203,7 @@ export function RegisterPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
                   autoComplete="email"
-                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-[#201a35] border border-[#352b54] text-white text-sm placeholder-neutral-500 outline-none transition focus:border-[#9146ff] focus:ring-1 focus:ring-[#9146ff]"
+                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-[#1b2a23] border border-[#2b4036] text-white text-sm placeholder-neutral-500 outline-none transition focus:border-[#00e599] focus:ring-1 focus:ring-[#00e599]"
                 />
               </div>
             </div>
@@ -232,7 +232,7 @@ export function RegisterPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   autoComplete={mode === "register" ? "new-password" : "current-password"}
-                  className="w-full h-11 pl-10 pr-11 rounded-xl bg-[#201a35] border border-[#352b54] text-white text-sm placeholder-neutral-500 outline-none transition focus:border-[#9146ff] focus:ring-1 focus:ring-[#9146ff]"
+                  className="w-full h-11 pl-10 pr-11 rounded-xl bg-[#1b2a23] border border-[#2b4036] text-white text-sm placeholder-neutral-500 outline-none transition focus:border-[#00e599] focus:ring-1 focus:ring-[#00e599]"
                 />
                 <button
                   type="button"
@@ -249,7 +249,7 @@ export function RegisterPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full mt-6 h-12 inline-flex items-center justify-center gap-2 rounded-xl bg-[#9146ff] text-black font-bold text-sm sm:text-base hover:bg-[#a855f7] hover:scale-[1.01] active:scale-[0.99] transition-all shadow-lg shadow-[#9146ff]/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full mt-6 h-12 inline-flex items-center justify-center gap-2 rounded-xl bg-[#00e599] text-black font-bold text-sm sm:text-base hover:bg-[#22c55e] hover:scale-[1.01] active:scale-[0.99] transition-all shadow-lg shadow-[#00e599]/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <div className="h-5 w-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
@@ -265,11 +265,11 @@ export function RegisterPage() {
           {/* Преимущества аккаунта */}
           <div className="mt-8 pt-6 border-t border-neutral-800/80 space-y-2 text-xs text-neutral-400">
             <div className="flex items-center gap-2 text-neutral-300">
-              <CheckCircle2 className="h-3.5 w-3.5 text-[#9146ff]" />
+              <CheckCircle2 className="h-3.5 w-3.5 text-[#00e599]" />
               <span>Синхронизация любимых треков и очередей</span>
             </div>
             <div className="flex items-center gap-2 text-neutral-300">
-              <CheckCircle2 className="h-3.5 w-3.5 text-[#9146ff]" />
+              <CheckCircle2 className="h-3.5 w-3.5 text-[#00e599]" />
               <span>Создание и администрирование своих комнат</span>
             </div>
           </div>
