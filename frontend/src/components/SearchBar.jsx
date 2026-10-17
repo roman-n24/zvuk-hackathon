@@ -41,7 +41,7 @@ export function SearchBar({
       role="search"
       onClick={() => inputRef.current?.focus()}
       className={cn(
-        "relative flex items-center w-full h-11 rounded-full bg-[#131e19] hover:bg-[#222222] focus-within:bg-[#222222] transition-colors px-4 cursor-text select-none",
+        "relative flex items-center w-full h-11 rounded-full bg-[#191920] hover:bg-[#222222] focus-within:bg-[#222222] transition-colors px-4 cursor-text select-none",
         className
       )}
       {...props}

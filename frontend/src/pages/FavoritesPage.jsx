@@ -138,15 +138,15 @@ export function FavoritesPage() {
     <div className="w-full text-white space-y-8 pb-24">
       {/* Тост */}
       {toast && (
-        <div className="fixed top-5 right-5 z-[200] bg-[#131e19] border border-[#1d4d38] text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2">
+        <div className="fixed top-5 right-5 z-[200] bg-[#191920] border border-[#4d280a] text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2">
           <span>{toast}</span>
         </div>
       )}
 
       {/* Заголовок */}
       <div className="space-y-3">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1e261d] border border-[#1d4d38] text-[#00e599] text-xs font-semibold uppercase tracking-wider">
-          <Heart className="h-3.5 w-3.5 fill-[#00e599]" />
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1e261d] border border-[#4d280a] text-[#ff6b00] text-xs font-semibold uppercase tracking-wider">
+          <Heart className="h-3.5 w-3.5 fill-[#ff6b00]" />
           <span>Ваша коллекция</span>
         </div>
         <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
@@ -158,17 +158,17 @@ export function FavoritesPage() {
       </div>
 
       {/* Вкладки: Треки и Сообщества */}
-      <div className="flex bg-[#0f1713] border border-[#1f2e27] rounded-xl p-1 gap-1 w-fit">
+      <div className="flex bg-[#15151a] border border-[#262630] rounded-xl p-1 gap-1 w-fit">
         <button
           onClick={() => setActiveTab("tracks")}
           className={cn(
             "px-5 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer flex items-center gap-2",
             activeTab === "tracks"
-              ? "bg-[#1f2e27] text-white"
+              ? "bg-[#262630] text-white"
               : "text-neutral-400 hover:text-white"
           )}
         >
-          <Music className="h-4 w-4 text-[#00e599]" />
+          <Music className="h-4 w-4 text-[#ff6b00]" />
           <span>Треки ({favorites.length})</span>
         </button>
 
@@ -177,11 +177,11 @@ export function FavoritesPage() {
           className={cn(
             "px-5 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer flex items-center gap-2",
             activeTab === "communities"
-              ? "bg-[#1f2e27] text-white"
+              ? "bg-[#262630] text-white"
               : "text-neutral-400 hover:text-white"
           )}
         >
-          <Users className="h-4 w-4 text-[#00e599]" />
+          <Users className="h-4 w-4 text-[#ff6b00]" />
           <span>Сообщества ({communities.length})</span>
         </button>
       </div>
@@ -198,10 +198,10 @@ export function FavoritesPage() {
                   <div
                     key={track.id}
                     className={cn(
-                      "flex items-center justify-between gap-3 p-3 sm:p-4 rounded-xl border transition-all bg-[#0f1713]",
+                      "flex items-center justify-between gap-3 p-3 sm:p-4 rounded-xl border transition-all bg-[#15151a]",
                       isPlaying
-                        ? "border-[#1d4d38] bg-[#0b2419]/90 shadow-md"
-                        : "border-[#1f2e27] hover:border-neutral-700"
+                        ? "border-[#4d280a] bg-[#261405]/90 shadow-md"
+                        : "border-[#262630] hover:border-neutral-700"
                     )}
                   >
                     <div className="flex items-center gap-3.5 min-w-0 flex-1">
@@ -221,7 +221,7 @@ export function FavoritesPage() {
                           )}
                         >
                           {isPlaying ? (
-                            <Pause className="h-5 w-5 text-[#00e599] fill-[#00e599]" />
+                            <Pause className="h-5 w-5 text-[#ff6b00] fill-[#ff6b00]" />
                           ) : (
                             <Play className="h-5 w-5 text-white fill-white ml-0.5" />
                           )}
@@ -233,7 +233,7 @@ export function FavoritesPage() {
                         <div
                           className={cn(
                             "text-sm font-bold truncate",
-                            isPlaying ? "text-[#00e599]" : "text-white"
+                            isPlaying ? "text-[#ff6b00]" : "text-white"
                           )}
                         >
                           {track.title}
@@ -278,7 +278,7 @@ export function FavoritesPage() {
               })}
             </div>
           ) : (
-            <div className="text-center py-16 rounded-2xl bg-[#0f1713] border border-[#1f2e27] space-y-3">
+            <div className="text-center py-16 rounded-2xl bg-[#15151a] border border-[#262630] space-y-3">
               <Heart className="h-10 w-10 text-neutral-600 mx-auto" />
               <h3 className="text-base font-bold text-white">Список избранного пуст</h3>
               <p className="text-xs text-neutral-400 max-w-sm mx-auto">
@@ -287,7 +287,7 @@ export function FavoritesPage() {
               <div className="pt-2">
                 <Link
                   to="/library"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#103324] border border-[#1d4d38] text-[#00e599] text-xs font-bold hover:bg-[#1d4d38] transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#331a06] border border-[#4d280a] text-[#ff6b00] text-xs font-bold hover:bg-[#4d280a] transition-colors"
                 >
                   <Sparkles className="h-4 w-4" />
                   <span>Открыть медиатеку</span>
@@ -306,11 +306,11 @@ export function FavoritesPage() {
               {communities.map((c) => (
                 <div
                   key={c.id}
-                  className="rounded-2xl bg-[#0f1713] border border-[#1f2e27] p-5 flex flex-col justify-between hover:border-neutral-700 transition-all group"
+                  className="rounded-2xl bg-[#15151a] border border-[#262630] p-5 flex flex-col justify-between hover:border-neutral-700 transition-all group"
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#103324] border border-[#1d4d38] text-[#00e599]">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#331a06] border border-[#4d280a] text-[#ff6b00]">
                         <Users className="h-5 w-5" />
                       </div>
                       <span className="text-xs text-neutral-400 font-mono bg-neutral-900 px-2 py-0.5 rounded border border-neutral-800">
@@ -319,7 +319,7 @@ export function FavoritesPage() {
                     </div>
 
                     <div>
-                      <h3 className="text-base font-bold text-white group-hover:text-[#00e599] transition-colors truncate">
+                      <h3 className="text-base font-bold text-white group-hover:text-[#ff6b00] transition-colors truncate">
                         {c.name}
                       </h3>
                       <p className="text-xs text-neutral-400 mt-1">
@@ -332,7 +332,7 @@ export function FavoritesPage() {
                     <button
                       type="button"
                       onClick={() => navigate(`/community/${c.id}`)}
-                      className="w-full inline-flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-[#1b2a23] hover:bg-[#103324] hover:text-[#00e599] text-xs font-bold text-neutral-200 transition-colors cursor-pointer"
+                      className="w-full inline-flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-[#24242e] hover:bg-[#331a06] hover:text-[#ff6b00] text-xs font-bold text-neutral-200 transition-colors cursor-pointer"
                     >
                       <span>Открыть комнату</span>
                       <ArrowRight className="h-3.5 w-3.5" />
@@ -342,7 +342,7 @@ export function FavoritesPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 rounded-2xl bg-[#0f1713] border border-[#1f2e27] space-y-3">
+            <div className="text-center py-16 rounded-2xl bg-[#15151a] border border-[#262630] space-y-3">
               <Users className="h-10 w-10 text-neutral-600 mx-auto" />
               <h3 className="text-base font-bold text-white">Вы пока не состоите в сообществах</h3>
               <p className="text-xs text-neutral-400 max-w-sm mx-auto">
@@ -351,7 +351,7 @@ export function FavoritesPage() {
               <div className="pt-2">
                 <Link
                   to="/"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#103324] border border-[#1d4d38] text-[#00e599] text-xs font-bold hover:bg-[#1d4d38] transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#331a06] border border-[#4d280a] text-[#ff6b00] text-xs font-bold hover:bg-[#4d280a] transition-colors"
                 >
                   <ArrowRight className="h-4 w-4" />
                   <span>На главную страницу</span>
