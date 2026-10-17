@@ -170,7 +170,6 @@ export function PartyPage() {
 
   // Local timers & UI
   const [elapsedTimer, setElapsedTimer] = useState(0);
-  const [isCopied, setIsCopied] = useState(false);
   const [isLinkCopied, setIsLinkCopied] = useState(false);
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
