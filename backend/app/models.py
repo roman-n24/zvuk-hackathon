@@ -121,6 +121,13 @@ class Room(Base):
     is_active: Mapped[bool] = mapped_column(
         server_default=text("true"), nullable=False
     )
+    party_is_active: Mapped[bool] = mapped_column(
+        server_default=text("false"), default=False, nullable=False
+    )
+    party_name: Mapped[str | None] = mapped_column(String(150), nullable=True)
+    party_started_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     avatar_url: Mapped[str | None] = mapped_column(String(500))
     external_link: Mapped[str | None] = mapped_column(String(500))
     queue_version: Mapped[int] = mapped_column(
@@ -587,14 +594,20 @@ class RoundTopSnapshot(Base):
     )
 
 
+<<<<<<< HEAD
 class LibraryTrack(Base):
     """Studio track catalog available for members to add to community playlists."""
 
     __tablename__ = "library_tracks"
+=======
+class PartySession(Base):
+    __tablename__ = "party_sessions"
+>>>>>>> a9756f3b4afffd308257669cc318421c5ac1eafd
 
     id: Mapped[uuid.UUID] = mapped_column(
         Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
+<<<<<<< HEAD
     key: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     artist: Mapped[str] = mapped_column(
@@ -619,12 +632,125 @@ class LibraryTrack(Base):
         Text, server_default=text("''"), nullable=False
     )
     file: Mapped[str | None] = mapped_column(String(255))
+=======
+    community_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("rooms.id", ondelete="SET NULL"), nullable=True
+    )
+    title: Mapped[str] = mapped_column(String(150), nullable=False, default="Вечеринка")
+    is_active: Mapped[bool] = mapped_column(server_default=text("true"), default=True, nullable=False)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    host_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    invite_code: Mapped[str] = mapped_column(String(10), nullable=False, unique=True)
+    playback_track_id: Mapped[uuid.UUID | None] = mapped_column(Uuid(as_uuid=True), nullable=True)
+    playback_state: Mapped[str] = mapped_column(String(20), server_default=text("'paused'"), default="paused", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    host: Mapped[User] = relationship(foreign_keys=[host_id])
+    community: Mapped[Room | None] = relationship(foreign_keys=[community_id])
+    participants: Mapped[list[PartyParticipant]] = relationship(
+        back_populates="party", cascade="all, delete-orphan"
+    )
+    queue_items: Mapped[list[PartyQueueItem]] = relationship(
+        back_populates="party", cascade="all, delete-orphan"
+    )
+
+
+class PartyParticipant(Base):
+    __tablename__ = "party_participants"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    party_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("party_sessions.id", ondelete="CASCADE"), nullable=False
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    role: Mapped[str] = mapped_column(String(20), server_default=text("'guest'"), default="guest", nullable=False)
+    joined_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+    party: Mapped[PartySession] = relationship(back_populates="participants")
+    user: Mapped[User] = relationship()
+
+    __table_args__ = (
+        UniqueConstraint("party_id", "user_id", name="uq_party_participants_party_user"),
+        Index("ix_party_participants_party_id", "party_id"),
+    )
+
+
+class PartyQueueItem(Base):
+    __tablename__ = "party_queue_items"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    party_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("party_sessions.id", ondelete="CASCADE"), nullable=False
+    )
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    artist: Mapped[str] = mapped_column(String(255), server_default=text("''"), nullable=False)
+    genre: Mapped[str] = mapped_column(String(100), server_default=text("''"), nullable=False)
+    duration_seconds: Mapped[int] = mapped_column(Integer, server_default=text("45"), nullable=False)
+    library_key: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    source_type: Mapped[str] = mapped_column(String(20), server_default=text("'library'"), nullable=False)
+    added_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    score: Mapped[int] = mapped_column(Integer, server_default=text("0"), default=0, nullable=False)
+>>>>>>> a9756f3b4afffd308257669cc318421c5ac1eafd
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
 
+<<<<<<< HEAD
     __table_args__ = (
         Index("ix_library_tracks_key", "key"),
         Index("ix_library_tracks_genre", "genre"),
     )
 
+=======
+    party: Mapped[PartySession] = relationship(back_populates="queue_items")
+    added_by_user: Mapped[User | None] = relationship(foreign_keys=[added_by_user_id])
+    votes: Mapped[list[PartyVote]] = relationship(
+        back_populates="queue_item", cascade="all, delete-orphan"
+    )
+
+    __table_args__ = (
+        Index("ix_party_queue_items_party_score", "party_id", "score"),
+    )
+
+
+class PartyVote(Base):
+    __tablename__ = "party_votes"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    party_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("party_sessions.id", ondelete="CASCADE"), nullable=False
+    )
+    party_queue_item_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("party_queue_items.id", ondelete="CASCADE"), nullable=False
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    value: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+    queue_item: Mapped[PartyQueueItem] = relationship(back_populates="votes")
+    user: Mapped[User] = relationship()
+
+    __table_args__ = (
+        UniqueConstraint("party_queue_item_id", "user_id", name="uq_party_votes_item_user"),
+        Index("ix_party_votes_item_id", "party_queue_item_id"),
+    )
+>>>>>>> a9756f3b4afffd308257669cc318421c5ac1eafd

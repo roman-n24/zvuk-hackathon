@@ -210,6 +210,7 @@ class CompleteRequest(BaseModel):
     queue_version: int = Field(ge=0)
 
 
+<<<<<<< HEAD
 class LibraryTrackCreate(BaseModel):
     key: str
     title: str
@@ -243,6 +244,10 @@ def _get_library_items(db: Session) -> list[dict]:
             for t in db_tracks
         ]
     return LIBRARY
+=======
+class PartyStartRequest(BaseModel):
+    name: str = Field(default="Вечеринка", max_length=150)
+>>>>>>> a9756f3b4afffd308257669cc318421c5ac1eafd
 
 
 def _clean(value: str, limit: int) -> str:
@@ -622,7 +627,7 @@ def _community_state(db: Session, room: Room, membership: RoomMember, user: User
                 ),
             }
         )
-    contributor_rows.sort(key=lambda row: (-row["tracks"], row["name"] or ""))
+    playing_track = next((t for t in tracks_payload if t["queue_state"] == "playing"), None)
     return {
         "community": {
             "id": room.id,
@@ -635,6 +640,16 @@ def _community_state(db: Session, room: Room, membership: RoomMember, user: User
             "owner_id": room.owner_id,
             "created_at": room.created_at,
             "role": membership.role.value,
+        },
+        "party": {
+            "is_active": room.party_is_active,
+            "name": room.party_name or "Вечеринка",
+            "started_at": room.party_started_at.isoformat() if room.party_started_at else None,
+            "duration_seconds": int((datetime.now(timezone.utc) - room.party_started_at).total_seconds()) if (room.party_is_active and room.party_started_at) else 0,
+        },
+        "playback": {
+            "current_track_id": playing_track["id"] if playing_track else None,
+            "state": "playing" if playing_track else "paused",
         },
         "week_key": playlist_round.starts_at.date().isoformat(),
         "vote_round": playlist_round.key,
@@ -1174,7 +1189,9 @@ def play_track(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    _member(db, room_id, user.id)
+    membership = _member(db, room_id, user.id)
+    if not _moderator(membership):
+        raise HTTPException(status_code=403, detail="Управлять общим воспроизведением может только администратор")
     room = db.scalar(select(Room).where(Room.id == room_id).with_for_update())
     playlist_round = _active_round(db, room_id)
     item = _queue_item(db, playlist_round, track_id)
@@ -1186,14 +1203,40 @@ def play_track(
         current.completed_at = datetime.now(timezone.utc)
         db.flush()
     if item.state != QueueItemState.PLAYING:
+        item.version += 1
         item.state = QueueItemState.PLAYING
         item.started_at = datetime.now(timezone.utc)
         item.completed_at = None
         db.add(PlaybackHistory(queue_item_id=item.id, played_by_user_id=user.id, queue_version=item.version, started_at=item.started_at))
         room.queue_version += 1
     db.commit()
-    manager.notify_room(room_id, action="playback", extra={"track_id": str(track_id)})
-    return {"ok": True, "queue_version": item.version}
+    manager.notify_room(room_id, action="playback", extra={"track_id": str(track_id), "state": "playing"})
+    return {"ok": True, "queue_version": item.version, "track_id": str(track_id), "state": "playing"}
+
+
+@router.post("/communities/{room_id}/tracks/{track_id}/pause")
+def pause_track(
+    room_id: uuid.UUID,
+    track_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    membership = _member(db, room_id, user.id)
+    if not _moderator(membership):
+        raise HTTPException(status_code=403, detail="Управлять общим воспроизведением может только администратор")
+    room = db.scalar(select(Room).where(Room.id == room_id).with_for_update())
+    playlist_round = _active_round(db, room_id)
+    current = db.scalar(select(QueueItem).where(QueueItem.round_id == playlist_round.id, QueueItem.state == QueueItemState.PLAYING).with_for_update())
+    if current is not None:
+        current.state = QueueItemState.QUEUED
+        room.queue_version += 1
+    item = _queue_item(db, playlist_round, track_id)
+    if item is not None and item.state == QueueItemState.PLAYING:
+        item.state = QueueItemState.QUEUED
+        room.queue_version += 1
+    db.commit()
+    manager.notify_room(room_id, action="playback", extra={"track_id": str(track_id), "state": "paused"})
+    return {"ok": True, "state": "paused"}
 
 
 @router.post("/communities/{room_id}/tracks/{track_id}/complete")
@@ -1211,7 +1254,8 @@ def complete_track(
     try:
         previous, next_item = complete_current_and_play_next(db, room_id, user.id, expected_queue_item_id=item.id, expected_version=payload.queue_version)
         db.commit()
-        manager.notify_room(room_id, action="playback")
+        next_track_id = str(next_item.track_id) if next_item else None
+        manager.notify_room(room_id, action="playback", extra={"track_id": next_track_id, "state": "playing" if next_item else "paused"})
         return {"completed": previous is not None, "next_track": {"id": next_item.track_id} if next_item else None}
     except (ConflictError, ForbiddenError, NotFoundError) as error:
         db.rollback()
@@ -1236,3 +1280,123 @@ def update_member_role(
     db.commit()
     manager.notify_room(room_id, action="role_updated", extra={"member_id": str(member_id), "role": target.role.value})
     return {"role": target.role.value}
+
+
+@router.post("/communities/{room_id}/party/start")
+def start_party(
+    room_id: uuid.UUID,
+    payload: PartyStartRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    membership = _member(db, room_id, user.id)
+    if not _moderator(membership):
+        raise HTTPException(status_code=403, detail="Запустить вечеринку может только администратор")
+    room = db.scalar(select(Room).where(Room.id == room_id).with_for_update())
+    room.party_is_active = True
+    room.party_name = payload.name.strip() or "Вечеринка"
+    room.party_started_at = datetime.now(timezone.utc)
+    try:
+        create_playlist_round(db, room_id, user.id, manual=True)
+    except Exception:
+        pass
+    db.commit()
+    started_iso = room.party_started_at.isoformat()
+    manager.notify_room(
+        room_id,
+        action="party_status_changed",
+        extra={
+            "type": "party_status_changed",
+            "is_active": True,
+            "name": room.party_name,
+            "started_at": started_iso,
+        },
+    )
+    return {
+        "ok": True,
+        "is_active": True,
+        "name": room.party_name,
+        "started_at": started_iso,
+    }
+
+
+@router.post("/communities/{room_id}/party/stop")
+def stop_party(
+    room_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    membership = _member(db, room_id, user.id)
+    if not _moderator(membership):
+        raise HTTPException(status_code=403, detail="Остановить вечеринку может только администратор")
+    room = db.scalar(select(Room).where(Room.id == room_id).with_for_update())
+    room.party_is_active = False
+    db.commit()
+    manager.notify_room(
+        room_id,
+        action="party_status_changed",
+        extra={
+            "type": "party_status_changed",
+            "is_active": False,
+            "name": room.party_name,
+            "started_at": room.party_started_at.isoformat() if room.party_started_at else None,
+        },
+    )
+    return {
+        "ok": True,
+        "is_active": False,
+        "name": room.party_name,
+    }
+
+
+@router.get("/communities/{room_id}/party/status")
+def party_status(
+    room_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    room = _room(db, room_id)
+    membership = _member(db, room_id, user.id)
+    state = _community_state(db, room, membership, user)
+
+    tracks = [t for t in state["tracks"] if t["status"] == "approved"]
+    banger = tracks[0] if tracks else None
+
+    user_scores: dict[uuid.UUID, dict] = {}
+    for m in state["members"]:
+        user_scores[m["id"]] = {
+            "id": str(m["id"]),
+            "name": m["display_name"],
+            "display_name": m["display_name"],
+            "avatar": (m["display_name"] or "У")[:2].upper(),
+            "total_score": 0,
+            "tracks_count": 0,
+        }
+    for t in tracks:
+        c_id = t["created_by"]
+        if c_id in user_scores:
+            user_scores[c_id]["total_score"] += int(t["vote_score"] or 0)
+            user_scores[c_id]["tracks_count"] += 1
+
+    sorted_hitmakers = sorted(
+        user_scores.values(),
+        key=lambda u: (-u["total_score"], -u["tracks_count"], u["name"] or ""),
+    )
+    hitmaker = sorted_hitmakers[0] if sorted_hitmakers and (sorted_hitmakers[0]["tracks_count"] > 0 or sorted_hitmakers[0]["total_score"] > 0) else (sorted_hitmakers[0] if sorted_hitmakers else None)
+
+    duration = 0
+    if room.party_is_active and room.party_started_at:
+        duration = int((datetime.now(timezone.utc) - room.party_started_at).total_seconds())
+
+    return {
+        "is_active": room.party_is_active,
+        "name": room.party_name or "Вечеринка",
+        "started_at": room.party_started_at.isoformat() if room.party_started_at else None,
+        "duration_seconds": duration,
+        "members_count": state["stats"]["members"],
+        "banger_track": banger,
+        "hitmaker": hitmaker,
+        "tracks": tracks,
+        "playback": state["playback"],
+        "can_moderate": _moderator(membership),
+    }

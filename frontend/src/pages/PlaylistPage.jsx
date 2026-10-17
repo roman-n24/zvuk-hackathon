@@ -11,10 +11,13 @@ import {
   Play, Pause, SkipBack, SkipForward, Music, Plus, Search,
   Copy, Check, Users, History, ShieldCheck, Trash2,
   CheckCircle, XCircle, Upload, ChevronUp, ChevronDown,
-  Minus, Crown, UserPlus, Image as ImageIcon, Heart,
+  Minus, Crown, UserPlus, Image as ImageIcon, Heart, Radio,
+  Sliders, Volume2, VolumeX,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { audioService } from "@/lib/audioService";
+import { EqualizerModal } from "@/components/EqualizerModal";
+import { QRCode } from "@/components/QRCode.jsx";
 
 // ─── Заготовки под будущий бэкенд (когда появится авторизация и API) ────────
 const DEFAULT_USER = {
@@ -260,10 +263,17 @@ export function PlaylistPage() {
   const [playlist, setPlaylist] = useState(DEFAULT_PLAYLIST);
   const [admins, setAdmins] = useState(DEFAULT_PLAYLIST.admins);
   const [membersList, setMembersList] = useState(MOCK_MEMBERS);
+  const [myRole, setMyRole] = useState("member");
   const [topHistory, setTopHistory] = useState(LAST_WEEK);
 
   // Права модератора: доступны владельцу или назначенным администраторам
-  const canModerate = !!(user && (playlist.creatorId === user.id || admins.includes(user.id)));
+  const canModerate = !!(
+    user &&
+    (myRole === "owner" ||
+      myRole === "moderator" ||
+      playlist.creatorId === user.id ||
+      admins.includes(user.id))
+  );
 
   // Состояние списка треков и модерации
   const [tracks, setTracks] = useState(INITIAL_TRACKS);
@@ -278,6 +288,9 @@ export function PlaylistPage() {
   const [modalInvite, setModalInvite] = useState(false);
   const [modalHistory, setModalHistory] = useState(false);
   const [modalAdmins, setModalAdmins] = useState(false);
+  const [eqOpen, setEqOpen] = useState(false);
+  const [isFXActive, setIsFXActive] = useState(audioService.isFXActive);
+  const [volume, setVolumeState] = useState(audioService.volume);
 
   // Форма добавления трека
   const [addTab, setAddTab] = useState("library");
@@ -289,10 +302,49 @@ export function PlaylistPage() {
 
   // Ссылка приглашения
   const [copiedLink, setCopiedLink] = useState(false);
+  const [serverAddress, setServerAddress] = useState("");
+
+  // Получение LAN-адреса для QR-кода и ссылок
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    fetch("/api/bootstrap", { headers })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((bData) => {
+        if (bData?.sharing?.base_url) {
+          setServerAddress(bData.sharing.base_url);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Тост-уведомления
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
+
+  const showToast = useCallback((msg) => {
+    setToast(msg);
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 3000);
+  }, []);
+
+  const tracksRef = useRef(tracks);
+  useEffect(() => {
+    tracksRef.current = tracks;
+  }, [tracks]);
+
+  // Разблокировка AudioContext/звука при любом взаимодействии пользователя
+  useEffect(() => {
+    const unlockAudio = () => {
+      audioService.unlock();
+    };
+    window.addEventListener("pointerdown", unlockAudio);
+    window.addEventListener("keydown", unlockAudio);
+    return () => {
+      window.removeEventListener("pointerdown", unlockAudio);
+      window.removeEventListener("keydown", unlockAudio);
+    };
+  }, []);
 
   // Реф для смены обложки
   const avatarInputRef = useRef(null);
@@ -341,6 +393,12 @@ export function PlaylistPage() {
         if (!data?.community) return;
 
         const comm = data.community;
+        if (comm.role) {
+          setMyRole(comm.role);
+        }
+        if (user?.id && comm.owner_id && user.id === comm.owner_id) {
+          setMyRole("owner");
+        }
         setPlaylist((prev) => ({
           ...prev,
           id: comm.id,
@@ -352,6 +410,10 @@ export function PlaylistPage() {
         }));
 
         if (Array.isArray(data.members) && data.members.length > 0) {
+          const myMember = data.members.find((m) => m.id === user?.id);
+          if (myMember?.role) {
+            setMyRole(myMember.role);
+          }
           const adminIds = data.members
             .filter((m) => m.role === "owner" || m.role === "moderator")
             .map((m) => m.id);
@@ -410,6 +472,28 @@ export function PlaylistPage() {
             }));
           setTracks(active);
 
+          if (data.playback) {
+            const pb = data.playback;
+            if (pb.state === "playing" && pb.current_track_id) {
+              const trackToPlay = active.find((t) => String(t.id) === String(pb.current_track_id));
+              if (trackToPlay) {
+                if (audioService.currentTrack?.id !== trackToPlay.id || !audioService.isPlaying) {
+                  audioService.play({
+                    ...trackToPlay,
+                    room_id: roomId,
+                    library_key: trackToPlay.library_key || "dawn",
+                  }).catch(() => {});
+                  setPlayer({ trackId: trackToPlay.id, playing: true, progress: 0, elapsed: 0 });
+                }
+              }
+            } else if (pb.state === "paused") {
+              if (audioService.isPlaying) {
+                audioService.pause();
+              }
+              setPlayer((p) => ({ ...p, playing: false }));
+            }
+          }
+
           const pending = data.tracks
             .filter((t) => t.status === "pending")
             .map((t, idx) => ({
@@ -451,7 +535,7 @@ export function PlaylistPage() {
         }
       })
       .catch(() => {});
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     if (!currentRoomId) return;
@@ -474,6 +558,24 @@ export function PlaylistPage() {
           try {
             const data = JSON.parse(event.data);
             if (data?.type === "room_updated") {
+              if (data.action === "playback") {
+                if (data.state === "paused") {
+                  audioService.pause();
+                  setPlayer((p) => ({ ...p, playing: false }));
+                } else if (data.state === "playing" && data.track_id) {
+                  const targetTrack = tracksRef.current.find((t) => String(t.id) === String(data.track_id));
+                  if (targetTrack) {
+                    if (audioService.currentTrack?.id !== targetTrack.id || !audioService.isPlaying) {
+                      audioService.play({
+                        ...targetTrack,
+                        room_id: currentRoomId,
+                        library_key: targetTrack.library_key || "dawn",
+                      }).catch(() => {});
+                      setPlayer({ trackId: targetTrack.id, playing: true, progress: 0, elapsed: 0 });
+                    }
+                  }
+                }
+              }
               fetchCommunityData(currentRoomId);
             }
           } catch {}
@@ -539,13 +641,34 @@ export function PlaylistPage() {
   }, []);
 
   // Плеер: методы управления воспроизведением с реальным звуком
-  const playTrack = useCallback((trackId) => {
+  const playTrack = useCallback(async (trackId) => {
+    if (!canModerate) {
+      if (player.trackId === trackId && player.playing) {
+        audioService.unlock();
+        showToast("🎧 Вы слушаете общий эфир плейлиста");
+        return;
+      }
+      showToast("⚠️ Управлять воспроизведением может только администратор");
+      return;
+    }
+
     const track = tracks.find((t) => t.id === trackId);
     if (!track) return;
+
+    const token = localStorage.getItem("token");
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
     if (player.trackId === trackId && player.playing) {
       audioService.pause();
       setPlayer((p) => ({ ...p, playing: false }));
+      if (currentRoomId) {
+        try {
+          await fetch(`/api/communities/${currentRoomId}/tracks/${trackId}/pause`, {
+            method: "POST",
+            headers,
+          });
+        } catch {}
+      }
     } else {
       audioService.play({
         ...track,
@@ -553,10 +676,22 @@ export function PlaylistPage() {
         library_key: track.library_key || "dawn",
       });
       setPlayer({ trackId, playing: true, progress: 0, elapsed: 0 });
+      if (currentRoomId) {
+        try {
+          await fetch(`/api/communities/${currentRoomId}/tracks/${trackId}/play`, {
+            method: "POST",
+            headers,
+          });
+        } catch {}
+      }
     }
-  }, [tracks, player.trackId, player.playing, currentRoomId]);
+  }, [canModerate, tracks, player.trackId, player.playing, currentRoomId, showToast]);
 
-  const playerNext = useCallback(() => {
+  const playerNext = useCallback(async () => {
+    if (!canModerate) {
+      showToast("⚠️ Переключать треки может только администратор");
+      return;
+    }
     const s = sortedTracks(tracks);
     if (!s.length) return;
     const idx = s.findIndex((t) => t.id === player.trackId);
@@ -567,9 +702,23 @@ export function PlaylistPage() {
       library_key: next.library_key || "dawn",
     });
     setPlayer({ trackId: next.id, playing: true, progress: 0, elapsed: 0 });
-  }, [tracks, player.trackId, currentRoomId]);
+    if (currentRoomId) {
+      try {
+        const token = localStorage.getItem("token");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        await fetch(`/api/communities/${currentRoomId}/tracks/${next.id}/play`, {
+          method: "POST",
+          headers,
+        });
+      } catch {}
+    }
+  }, [canModerate, tracks, player.trackId, currentRoomId, showToast]);
 
-  const playerPrev = useCallback(() => {
+  const playerPrev = useCallback(async () => {
+    if (!canModerate) {
+      showToast("⚠️ Переключать треки может только администратор");
+      return;
+    }
     const s = sortedTracks(tracks);
     if (!s.length) return;
     const idx = s.findIndex((t) => t.id === player.trackId);
@@ -580,14 +729,46 @@ export function PlaylistPage() {
       library_key: prev.library_key || "dawn",
     });
     setPlayer({ trackId: prev.id, playing: true, progress: 0, elapsed: 0 });
-  }, [tracks, player.trackId, currentRoomId]);
+    if (currentRoomId) {
+      try {
+        const token = localStorage.getItem("token");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        await fetch(`/api/communities/${currentRoomId}/tracks/${prev.id}/play`, {
+          method: "POST",
+          headers,
+        });
+      } catch {}
+    }
+  }, [canModerate, tracks, player.trackId, currentRoomId, showToast]);
 
-  const togglePlay = () => {
+  const togglePlay = useCallback(async () => {
+    if (!canModerate) {
+      if (player.trackId && player.playing) {
+        audioService.unlock();
+        showToast("🎧 Вы слушаете общий эфир плейлиста");
+      } else {
+        showToast("⚠️ Управлять воспроизведением может только администратор");
+      }
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
     if (!player.trackId && tracks.length > 0) {
-      playTrack(sortedTracks(tracks)[0].id);
-    } else if (player.playing) {
+      const first = sortedTracks(tracks)[0];
+      if (first) playTrack(first.id);
+    } else if (player.playing && player.trackId) {
       audioService.pause();
       setPlayer((p) => ({ ...p, playing: false }));
+      if (currentRoomId) {
+        try {
+          await fetch(`/api/communities/${currentRoomId}/tracks/${player.trackId}/pause`, {
+            method: "POST",
+            headers,
+          });
+        } catch {}
+      }
     } else if (player.trackId) {
       const track = tracks.find((t) => t.id === player.trackId);
       if (track) {
@@ -597,11 +778,23 @@ export function PlaylistPage() {
           library_key: track.library_key || "dawn",
         });
         setPlayer((p) => ({ ...p, playing: true }));
+        if (currentRoomId) {
+          try {
+            await fetch(`/api/communities/${currentRoomId}/tracks/${track.id}/play`, {
+              method: "POST",
+              headers,
+            });
+          } catch {}
+        }
       }
     }
-  };
+  }, [canModerate, tracks, player.trackId, player.playing, currentRoomId, playTrack, showToast]);
 
   const seekPlayer = (e) => {
+    if (!canModerate) {
+      showToast("⚠️ Управлять воспроизведением может только администратор");
+      return;
+    }
     const rect = e.currentTarget.getBoundingClientRect();
     const pct = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
     const currentT = tracks.find((t) => t.id === player.trackId);
@@ -615,7 +808,9 @@ export function PlaylistPage() {
   // Подписка на аудио движок
   useEffect(() => {
     audioService.onEnded = () => {
-      playerNext();
+      if (canModerate) {
+        playerNext();
+      }
     };
     const unsubscribe = audioService.subscribe((state) => {
       if (state.track) {
@@ -627,16 +822,14 @@ export function PlaylistPage() {
         });
       }
     });
+    const unsubEQ = audioService.subscribeEQ((st) => {
+      setIsFXActive(st.isFXActive);
+    });
     return () => {
       unsubscribe();
+      unsubEQ();
     };
-  }, [playerNext]);
-
-  const showToast = useCallback((msg) => {
-    setToast(msg);
-    clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 3000);
-  }, []);
+  }, [playerNext, canModerate]);
 
   const handleToggleFavorite = async (trackId) => {
     const t = tracks.find((x) => x.id === trackId);
@@ -957,13 +1150,20 @@ export function PlaylistPage() {
     setModalAdd(false);
   };
 
+  const effectiveHost =
+    typeof window !== "undefined" &&
+    window.location.hostname !== "localhost" &&
+    window.location.hostname !== "127.0.0.1"
+      ? window.location.origin
+      : serverAddress || (typeof window !== "undefined" ? window.location.origin : "");
+  const currentInviteCode = playlist.inviteCode || "ZVUK26";
+  const resolvedInviteLink = `${effectiveHost}/?invite=${currentInviteCode}`;
+
   const copyInviteLink = () => {
-    const code = playlist.inviteCode || "ZVUK26";
-    const shareUrl = `${window.location.origin}/community/${playlist.id || currentRoomId || ""}`;
-    navigator.clipboard?.writeText(shareUrl).catch(() => {});
+    navigator.clipboard?.writeText(resolvedInviteLink).catch(() => {});
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
-    showToast(`Ссылка с кодом ${code} скопирована!`);
+    showToast(`Ссылка с кодом ${currentInviteCode} скопирована!`);
   };
 
   const filtered = sortedTracks(tracks);
@@ -1092,11 +1292,16 @@ export function PlaylistPage() {
             <span className="text-white font-medium">{playlist.creatorId === user.id ? "Добавить трек" : "Предложить трек"}</span>
           </button>
 
-          {/* Элемент "Владелец" / "Модератор" — в точности такого же размера и формата (h-10, px-4, rounded-xl, text-sm) */}
-          {canModerate && (
+          {/* Элемент "Владелец" / "Модератор" / "Слушатель" */}
+          {canModerate ? (
             <span className="h-10 px-4 rounded-xl bg-[#171717] border border-[#262626] text-sm font-medium inline-flex items-center gap-2 select-none">
               <ShieldCheck size={16} className="text-[#a3e635]" />
               <span className="text-white">{playlist.creatorId === user.id ? "Владелец" : "Модератор"}</span>
+            </span>
+          ) : (
+            <span className="h-10 px-4 rounded-xl bg-[#171717] border border-[#262626] text-sm font-medium inline-flex items-center gap-2 select-none text-neutral-400" title="Вы слушаете синхронный эфир плейлиста">
+              <Users size={15} className="text-neutral-400" />
+              <span>Слушатель</span>
             </span>
           )}
         </div>
@@ -1125,6 +1330,35 @@ export function PlaylistPage() {
           ))}
         </div>
       </div>
+
+      {/* ═══ БАННЕР СИНХРОННОГО ЭФИРА ════════════════════════════════════════ */}
+      {player.playing && currentTrack && (
+        <div
+          onClick={() => {
+            audioService.unlock();
+            showToast("🎧 Звук совместного эфира активен");
+          }}
+          className="mb-4 px-4 py-2.5 rounded-xl bg-[#1c231d] border border-[#2e402d] flex items-center justify-between gap-3 cursor-pointer hover:bg-[#243025] transition-all"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="relative flex h-2.5 w-2.5 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#a3e635] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#a3e635]"></span>
+            </span>
+            <p className="text-xs font-semibold text-white truncate">
+              Сейчас играет для всех: <span className="text-[#a3e635]">«{currentTrack.title}» — {currentTrack.artist}</span>
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-[11px] text-neutral-400 hidden sm:inline">
+              {canModerate ? "Вы управляете эфиром" : "Нажмите, чтобы включить звук"}
+            </span>
+            <span className="text-xs font-bold text-[#a3e635] bg-[#243025] px-2.5 py-1 rounded-lg border border-[#3c543b]">
+              {canModerate ? "В эфире 🔴" : "Включить звук 🔊"}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* ═══ ВКЛАДКА: В ОЧЕРЕДИ (РЕЙТИНГ) ════════════════════════════════════ */}
       {activeTab === "queue" && (
@@ -1193,30 +1427,96 @@ export function PlaylistPage() {
               </div>
             )}
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-white truncate max-w-[160px]">{currentTrack?.title ?? "—"}</p>
-              <p className="text-xs text-neutral-400 truncate max-w-[160px]">{currentTrack?.artist ?? "Выберите трек"}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold text-white truncate max-w-[150px]">{currentTrack?.title ?? "—"}</p>
+                {player.playing && (
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold text-[#a3e635] bg-[#1c231d] border border-[#2e402d] px-1.5 py-0.2 rounded-md">
+                    <Radio size={10} className="animate-pulse" /> Эфир
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-neutral-400 truncate max-w-[150px]">{currentTrack?.artist ?? "Выберите трек"}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
-            <button onClick={playerPrev} className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white transition-colors rounded-lg hover:bg-neutral-800 cursor-pointer">
+            <button
+              onClick={playerPrev}
+              title={canModerate ? "Предыдущий трек" : "Только для администратора"}
+              className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white transition-colors rounded-lg hover:bg-neutral-800 cursor-pointer"
+            >
               <SkipBack size={16} />
             </button>
             <button
               onClick={togglePlay}
+              title={canModerate ? (player.playing ? "Пауза для всех" : "Воспроизведение для всех") : (player.playing ? "Слушать общий эфир" : "Только администратор включает эфир")}
               className="w-10 h-10 flex items-center justify-center rounded-full bg-[#1c231d] border border-[#2e402d] text-white hover:bg-[#243025] hover:border-[#3c543b] transition-colors cursor-pointer"
             >
               {player.playing ? <Pause size={17} className="fill-[#a3e635] text-[#a3e635]" /> : <Play size={17} className="fill-[#a3e635] text-[#a3e635] ml-0.5" />}
             </button>
-            <button onClick={playerNext} className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white transition-colors rounded-lg hover:bg-neutral-800 cursor-pointer">
+            <button
+              onClick={playerNext}
+              title={canModerate ? "Следующий трек" : "Только для администратора"}
+              className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white transition-colors rounded-lg hover:bg-neutral-800 cursor-pointer"
+            >
               <SkipForward size={16} />
             </button>
           </div>
 
-          <span className="text-xs text-neutral-500 tabular-nums shrink-0">{fmtTime(player.elapsed)} / 4:00</span>
+          <span className="text-xs text-neutral-500 tabular-nums shrink-0">{fmtTime(player.elapsed)} / {fmtTime(currentTrack?.duration_seconds || 45)}</span>
           <NextBadge tracks={tracks} currentId={player.trackId} />
+
+          {/* Контрол громкости */}
+          <div className="hidden md:flex items-center gap-2 shrink-0 ml-auto sm:ml-0">
+            <button
+              onClick={() => {
+                const nextVol = volume === 0 ? 0.7 : 0;
+                setVolumeState(nextVol);
+                audioService.setVolume(nextVol);
+              }}
+              className="text-neutral-400 hover:text-white transition-colors cursor-pointer"
+              title={volume === 0 ? "Включить звук" : "Выключить звук"}
+            >
+              {volume === 0 ? <VolumeX size={16} className="text-red-400" /> : <Volume2 size={16} />}
+            </button>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.02"
+              value={volume}
+              onChange={(e) => {
+                const v = parseFloat(e.target.value);
+                setVolumeState(v);
+                audioService.setVolume(v);
+              }}
+              className="w-16 lg:w-20 h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-[#a3e635]"
+              title={`Громкость: ${Math.round(volume * 100)}%`}
+            />
+          </div>
+
+          {/* Кнопка вызова эквалайзера */}
+          <button
+            onClick={() => setEqOpen(true)}
+            className={cn(
+              "relative h-9 px-3 rounded-xl border flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95",
+              isFXActive
+                ? "bg-[#1c231d] border-[#a3e635]/60 text-[#a3e635] shadow-[0_0_12px_rgba(163,230,53,0.25)]"
+                : "bg-[#171717] border-[#2a2a2a] text-neutral-400 hover:text-white hover:border-[#3a3a3a]"
+            )}
+            title="3-полосный эквалайзер и DJ-эффекты"
+          >
+            <Sliders size={14} className={isFXActive ? "text-[#a3e635]" : ""} />
+            <span className="hidden sm:inline">EQ</span>
+            {isFXActive && (
+              <span className="w-2 h-2 rounded-full bg-[#a3e635] shadow-[0_0_6px_#a3e635] animate-pulse" />
+            )}
+          </button>
         </div>
       </div>
+
+      {/* ═══ МОДАЛКА ЭКВАЛАЙЗЕРА ═════════════════════════════════════════════ */}
+      <EqualizerModal open={eqOpen} onOpenChange={setEqOpen} />
 
       {/* ═══ ТОСТ-УВЕДОМЛЕНИЯ ═══════════════════════════════════════════════ */}
       {toast && (
@@ -1330,7 +1630,7 @@ export function PlaylistPage() {
             <div>
               <label className="block text-xs font-semibold text-neutral-400 mb-1.5">Ссылка-приглашение</label>
               <div className="flex items-center gap-2">
-                <input readOnly value={`${window.location.origin}/community/${playlist.id || currentRoomId || ""}`}
+                <input readOnly value={resolvedInviteLink}
                   className="flex-1 bg-[#1c1c1c] border border-[#262626] rounded-xl px-3 py-2.5 text-sm text-[#a3e635] font-mono outline-none" />
                 <button onClick={copyInviteLink}
                   className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#1c231d] border border-[#2e402d] text-white text-sm font-semibold hover:bg-[#243025] transition-colors shrink-0 cursor-pointer">
@@ -1342,35 +1642,20 @@ export function PlaylistPage() {
             <div>
               <label className="block text-xs font-semibold text-neutral-400 mb-1.5">Код доступа</label>
               <div className="flex items-center justify-between bg-[#1c231d] border border-[#2e402d] rounded-xl px-4 py-3">
-                <span className="text-2xl font-black tracking-widest text-white">{playlist.inviteCode || "ZVUK26"}</span>
+                <span className="text-2xl font-black tracking-widest text-white">{currentInviteCode}</span>
                 <span className="text-xs text-neutral-400">Введи в приложении</span>
               </div>
             </div>
             <div className="rounded-xl bg-neutral-900/60 border border-[#262626] p-4 flex items-center gap-4">
-              <div className="shrink-0 bg-[#1c1c1c] rounded-xl p-2 border border-[#262626]">
-                <svg width="72" height="72" viewBox="0 0 21 21">
-                  {[
-                    [1,1,1,1,1,1,1,0,1,0,0,0,1,1,1,1,1,1,1,0,0],
-                    [1,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,1,0,0],
-                    [1,0,1,1,1,0,1,0,1,0,0,1,0,1,0,1,1,1,0,1,0],
-                    [1,0,1,1,1,0,1,0,0,1,0,0,1,0,0,1,1,1,0,1,0],
-                    [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,1,0,0],
-                    [1,1,1,1,1,1,1,0,1,0,1,0,1,1,1,1,1,1,1,0,0],
-                    [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
-                    [1,0,1,1,0,1,1,0,0,0,1,0,1,1,0,1,0,1,0,1,0],
-                    [0,1,0,1,0,0,0,1,0,1,0,0,0,0,1,0,1,0,1,0,1],
-                    [1,0,1,0,1,0,1,0,1,0,1,1,0,1,0,1,0,0,1,0,0],
-                    [0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,1,0,1,0,1],
-                    [1,1,1,1,1,1,1,0,0,0,1,0,0,1,0,1,1,1,1,0,0],
-                    [1,0,0,0,0,0,1,0,1,0,0,1,1,0,1,0,1,0,0,0,1],
-                    [1,0,1,1,1,0,1,0,0,0,1,0,0,1,0,1,0,1,0,1,0],
-                    [1,0,1,1,1,0,1,0,1,0,0,1,0,0,1,0,1,0,0,0,1],
-                    [1,0,0,0,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1,0,0],
-                    [1,1,1,1,1,1,1,0,0,0,0,1,0,1,0,1,0,1,0,1,0],
-                  ].map((row, r) => row.map((cell, c) => cell ? (
-                    <rect key={`${r}-${c}`} x={c} y={r} width={0.85} height={0.85} fill="#a3e635" rx={0.1} />
-                  ) : null))}
-                </svg>
+              <div className="shrink-0 bg-white rounded-xl p-2 shadow-xs flex items-center justify-center">
+                <QRCode
+                  value={resolvedInviteLink}
+                  size={72}
+                  fgColor="#000000"
+                  bgColor="#ffffff"
+                  margin={1}
+                  className="rounded-md"
+                />
               </div>
               <div>
                 <p className="text-sm font-bold text-white">Сканируй и присоединяйся</p>
@@ -1428,7 +1713,9 @@ export function PlaylistPage() {
                       <p className="text-sm font-semibold text-white truncate">{t.title}</p>
                       <p className="text-xs text-neutral-400">{t.artist}</p>
                     </div>
-                    <span className="text-sm font-bold shrink-0" style={{ color: colors[i] }}>+{t.votes}</span>
+                    <span className="text-sm font-bold shrink-0" style={{ color: colors[i] }}>
+                      {t.votes > 0 ? `+${t.votes}` : t.votes}
+                    </span>
                   </div>
                 );
               })}

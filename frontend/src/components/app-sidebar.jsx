@@ -27,6 +27,7 @@ import {
   ArrowRight,
   LogOut,
   User as UserIcon,
+  Flame,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,7 @@ import { useAuth } from "@/lib/auth";
 const items = [
   { title: "Главная", url: "/", icon: Home },
   { title: "Плейлист", url: "/playlist", icon: ListMusic },
+  { title: "Вечеринка", url: "/party", icon: Flame, badge: "LIVE" },
   { title: "Медиатека", url: "/library", icon: Library },
   { title: "Избранное", url: "/favorites", icon: Heart },
 ];
@@ -45,6 +47,7 @@ export function AppSidebar() {
   const { open } = useSidebar();
   const { user, isAuthenticated, logout } = useAuth();
   const [communities, setCommunities] = useState([]);
+  const [sharingBaseUrl, setSharingBaseUrl] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isJoinOpen, setIsJoinOpen] = useState(false);
   const [isInviteOpen, setIsInviteOpen] = useState(false);
@@ -64,26 +67,30 @@ export function AppSidebar() {
               all.map((c) => ({
                 id: c.id,
                 name: c.name,
+                invite_code: c.invite_code,
                 url: `/community/${c.id}`,
               }))
             );
-            return;
           }
         }
-        // Запасной запрос в /api/bootstrap
+        // Запрос в /api/bootstrap для получения LAN-адреса и дефолтных сообществ
         return fetch("/api/bootstrap", { headers })
           .then((res) => (res.ok ? res.json() : null))
           .then((bData) => {
+            if (bData?.sharing?.base_url) {
+              setSharingBaseUrl(bData.sharing.base_url);
+            }
             if (bData?.communities?.length > 0) {
-              setCommunities(
-                bData.communities.map((c) => ({
-                  id: c.id,
-                  name: c.name,
-                  url: `/community/${c.id}`,
-                }))
+              setCommunities((prev) =>
+                prev.length > 0
+                  ? prev
+                  : bData.communities.map((c) => ({
+                      id: c.id,
+                      name: c.name,
+                      invite_code: c.invite_code,
+                      url: `/community/${c.id}`,
+                    }))
               );
-            } else {
-              setCommunities([]);
             }
           });
       })
@@ -245,9 +252,17 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <Link to={item.url} title={item.title}>
-                      <item.icon />
-                      {open && <span>{item.title}</span>}
+                    <Link to={item.url} title={item.title} className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-2">
+                        <item.icon className={item.badge ? "text-orange-400" : ""} />
+                        {open && <span>{item.title}</span>}
+                      </div>
+                      {open && item.badge && (
+                        <span className="text-[10px] font-black px-1.5 py-0.2 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-1 animate-pulse">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                          {item.badge}
+                        </span>
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -446,6 +461,29 @@ export function AppSidebar() {
         type="invite"
         open={isInviteOpen}
         onOpenChange={setIsInviteOpen}
+        communityCode={
+          (communities.find((c) =>
+            window.location.pathname.startsWith(`/community/${c.id}`)
+          ) || communities[0])?.invite_code || "ZVUK26"
+        }
+        serverAddress={
+          typeof window !== "undefined" &&
+          window.location.hostname !== "localhost" &&
+          window.location.hostname !== "127.0.0.1"
+            ? window.location.origin
+            : sharingBaseUrl || (typeof window !== "undefined" ? window.location.origin : "")
+        }
+        inviteLink={`${
+          typeof window !== "undefined" &&
+          window.location.hostname !== "localhost" &&
+          window.location.hostname !== "127.0.0.1"
+            ? window.location.origin
+            : sharingBaseUrl || (typeof window !== "undefined" ? window.location.origin : "")
+        }/?invite=${
+          (communities.find((c) =>
+            window.location.pathname.startsWith(`/community/${c.id}`)
+          ) || communities[0])?.invite_code || "ZVUK26"
+        }`}
       />
     </Sidebar>
   );

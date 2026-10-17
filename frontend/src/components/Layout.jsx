@@ -11,8 +11,14 @@ export default function Layout({ children }) {
   const isPlaylistPage =
     location.pathname === "/playlist" ||
     location.pathname.startsWith("/playlist/") ||
+<<<<<<< HEAD
     location.pathname.startsWith("/community");
   const isLibraryPage = location.pathname === "/library";
+=======
+    location.pathname.startsWith("/community") ||
+    location.pathname === "/party" ||
+    location.pathname.startsWith("/party");
+>>>>>>> a9756f3b4afffd308257669cc318421c5ac1eafd
 
   return (
     <SidebarProvider className="bg-[#121212] text-white">
