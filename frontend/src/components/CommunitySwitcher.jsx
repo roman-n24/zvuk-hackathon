@@ -65,7 +65,7 @@ export function CommunitySwitcher() {
   return (
     <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
       <div className="flex items-center gap-1.5 text-xs text-neutral-400 font-medium shrink-0 mr-1">
-        <Layers className="h-4 w-4 text-[#9146ff]" />
+        <Layers className="h-4 w-4 text-[#ccff00]" />
         <span>Сообщества:</span>
       </div>
       <div className="flex items-center gap-2 shrink-0">
@@ -79,11 +79,11 @@ export function CommunitySwitcher() {
               className={cn(
                 "flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer border",
                 isActive
-                  ? "bg-[#1e1633] border-[#3b2d64] text-[#9146ff] font-bold shadow-sm shadow-[#9146ff]/10"
-                  : "bg-[#151122] border-[#28203f] text-neutral-400 hover:text-white hover:border-neutral-700 font-medium"
+                  ? "bg-[#141a05] border-[#3a4d0f] text-[#ccff00] font-bold shadow-sm shadow-[#ccff00]/10"
+                  : "bg-[#121212] border-[#242424] text-neutral-400 hover:text-white hover:border-neutral-700 font-medium"
               )}
             >
-              <Users className={cn("h-3.5 w-3.5", isActive ? "text-[#9146ff]" : "text-neutral-500")} />
+              <Users className={cn("h-3.5 w-3.5", isActive ? "text-[#ccff00]" : "text-neutral-500")} />
               <span className="truncate max-w-[140px] sm:max-w-[200px]">{comm.name}</span>
             </button>
           );

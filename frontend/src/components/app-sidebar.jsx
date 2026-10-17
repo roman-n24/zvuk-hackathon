@@ -181,7 +181,7 @@ export function AppSidebar() {
       {/* Самый верхний уровень: Логотип сайта и кнопка сворачивания */}
       <SidebarHeader
         className={cn(
-          "border-b border-[#28203f]/60 p-3 transition-all",
+          "border-b border-[#242424]/60 p-3 transition-all",
           open
             ? "flex-row items-center justify-between"
             : "flex-col items-center justify-center gap-3 px-2 py-3"
@@ -198,22 +198,22 @@ export function AppSidebar() {
               to="/"
               className="flex items-center gap-3 px-2 py-1 rounded-xl transition-colors hover:bg-neutral-800/50 select-none min-w-0"
             >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#9146ff] shadow-xs">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#ccff00] shadow-xs">
                 <svg
                   viewBox="0 0 36 36"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-6 w-6"
                 >
-                  <rect x="7.5" y="13" width="3" height="10" rx="1.5" fill="#151122" />
-                  <rect x="12.5" y="9" width="3" height="18" rx="1.5" fill="#151122" />
-                  <rect x="17.5" y="6" width="3" height="24" rx="1.5" fill="#151122" />
-                  <rect x="22.5" y="9" width="3" height="18" rx="1.5" fill="#151122" />
-                  <rect x="27.5" y="13" width="3" height="10" rx="1.5" fill="#151122" />
+                  <rect x="7.5" y="13" width="3" height="10" rx="1.5" fill="#121212" />
+                  <rect x="12.5" y="9" width="3" height="18" rx="1.5" fill="#121212" />
+                  <rect x="17.5" y="6" width="3" height="24" rx="1.5" fill="#121212" />
+                  <rect x="22.5" y="9" width="3" height="18" rx="1.5" fill="#121212" />
+                  <rect x="27.5" y="13" width="3" height="10" rx="1.5" fill="#121212" />
                 </svg>
               </div>
               <span className="text-2xl font-bold tracking-tight text-white flex items-baseline truncate">
-                ритм<span className="text-[#9146ff] text-2xl font-black">.</span>
+                ритм<span className="text-[#ccff00] text-2xl font-black">.</span>
               </span>
             </Link>
             <SidebarTrigger />
@@ -226,18 +226,18 @@ export function AppSidebar() {
               title="ритм."
               className="flex items-center justify-center rounded-xl transition-colors hover:bg-neutral-800/50 select-none p-1"
             >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#9146ff] shadow-xs">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#ccff00] shadow-xs">
                 <svg
                   viewBox="0 0 36 36"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-6 w-6"
                 >
-                  <rect x="7.5" y="13" width="3" height="10" rx="1.5" fill="#151122" />
-                  <rect x="12.5" y="9" width="3" height="18" rx="1.5" fill="#151122" />
-                  <rect x="17.5" y="6" width="3" height="24" rx="1.5" fill="#151122" />
-                  <rect x="22.5" y="9" width="3" height="18" rx="1.5" fill="#151122" />
-                  <rect x="27.5" y="13" width="3" height="10" rx="1.5" fill="#151122" />
+                  <rect x="7.5" y="13" width="3" height="10" rx="1.5" fill="#121212" />
+                  <rect x="12.5" y="9" width="3" height="18" rx="1.5" fill="#121212" />
+                  <rect x="17.5" y="6" width="3" height="24" rx="1.5" fill="#121212" />
+                  <rect x="22.5" y="9" width="3" height="18" rx="1.5" fill="#121212" />
+                  <rect x="27.5" y="13" width="3" height="10" rx="1.5" fill="#121212" />
                 </svg>
               </div>
             </Link>
@@ -292,7 +292,7 @@ export function AppSidebar() {
               <button
                 type="button"
                 onClick={() => setIsCreateOpen(true)}
-                className="flex h-5 w-5 items-center justify-center rounded text-neutral-400 hover:bg-[#28203f] hover:text-white transition-colors cursor-pointer"
+                className="flex h-5 w-5 items-center justify-center rounded text-neutral-400 hover:bg-[#242424] hover:text-white transition-colors cursor-pointer"
                 title="Добавить сообщество"
                 aria-label="Добавить сообщество"
               >
@@ -305,7 +305,7 @@ export function AppSidebar() {
               <button
                 type="button"
                 onClick={() => setIsCreateOpen(true)}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-400 hover:bg-[#28203f] hover:text-white transition-colors cursor-pointer"
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-400 hover:bg-[#242424] hover:text-white transition-colors cursor-pointer"
                 title="Добавить сообщество"
                 aria-label="Добавить сообщество"
               >
@@ -332,7 +332,7 @@ export function AppSidebar() {
                         e.stopPropagation();
                         handleRemoveCommunity(community.id);
                       }}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded text-neutral-400 opacity-0 group-hover:opacity-100 hover:bg-[#3b2f5e] hover:text-red-400 transition-opacity transition-colors cursor-pointer"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded text-neutral-400 opacity-0 group-hover:opacity-100 hover:bg-[#363636] hover:text-red-400 transition-opacity transition-colors cursor-pointer"
                       title="Удалить сообщество"
                       aria-label="Удалить сообщество"
                     >
@@ -360,17 +360,17 @@ export function AppSidebar() {
       </SidebarContent>
 
       {/* Самый нижний уровень */}
-      <SidebarFooter className="border-t border-[#28203f]/60 p-2 mt-auto flex flex-col gap-2 transition-all duration-300">
+      <SidebarFooter className="border-t border-[#242424]/60 p-2 mt-auto flex flex-col gap-2 transition-all duration-300">
         {/* Профиль пользователя или кнопка авторизации */}
         {isAuthenticated && user ? (
           <div
             className={cn(
-              "flex items-center justify-between rounded-2xl bg-[#191429] border border-[#28203f] p-2 transition-all",
+              "flex items-center justify-between rounded-2xl bg-[#161616] border border-[#242424] p-2 transition-all",
               open ? "w-full" : "w-[50px] h-[50px] justify-center p-0 mx-auto"
             )}
           >
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#28203f] text-[#9146ff] font-bold border border-[#3b2f5e] overflow-hidden">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#242424] text-[#ccff00] font-bold border border-[#363636] overflow-hidden">
                 {user.avatar_url ? (
                   <img
                     src={user.avatar_url}
@@ -409,7 +409,7 @@ export function AppSidebar() {
             to="/register"
             title="Войти или зарегистрироваться"
             className={cn(
-              "rounded-2xl bg-[#1e1633] border border-[#3b2d64] text-[#9146ff] flex items-center hover:bg-[#2a1f47] transition-all cursor-pointer group",
+              "rounded-2xl bg-[#141a05] border border-[#3a4d0f] text-[#ccff00] flex items-center hover:bg-[#1c2408] transition-all cursor-pointer group",
               open
                 ? "w-full h-11 px-3 gap-2.5 justify-start text-xs font-bold"
                 : "w-[50px] h-[50px] p-0 justify-center mx-auto"
@@ -425,13 +425,13 @@ export function AppSidebar() {
           onClick={() => setIsInviteOpen(true)}
           title="Музыка лучше вместе — Пригласи друзей"
           className={cn(
-            "rounded-2xl bg-[#1e1633] border border-[#3b2d64] flex items-center text-left hover:bg-[#232e25] transition-all duration-300 ease-in-out cursor-pointer group overflow-hidden",
+            "rounded-2xl bg-[#141a05] border border-[#3a4d0f] flex items-center text-left hover:bg-[#232e25] transition-all duration-300 ease-in-out cursor-pointer group overflow-hidden",
             open
               ? "w-full h-[70px] p-2 gap-3"
               : "w-[50px] h-[50px] p-0 gap-0 justify-center mx-auto"
           )}
         >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#322359] text-[#9146ff]">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#25330a] text-[#ccff00]">
             <Headphones className="h-5 w-5" />
           </div>
           <div
