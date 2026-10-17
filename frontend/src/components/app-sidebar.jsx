@@ -248,7 +248,7 @@ export function AppSidebar() {
         <SidebarGroup>
           {open && <SidebarGroupLabel>Музыка</SidebarGroupLabel>}
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="flex space-between center">
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
