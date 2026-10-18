@@ -13,7 +13,7 @@ export function ToastCard({ t, type = "success", message }) {
       className={cn(
         "relative flex flex-col w-[340px] sm:w-[380px] max-w-[calc(100vw-32px)] rounded-2xl bg-[#171717] border shadow-2xl overflow-hidden transition-all duration-300 pointer-events-auto select-none",
         isSuccess
-          ? "border-[#4a3f24] shadow-[0_12px_32px_rgba(0,0,0,0.6)]"
+          ? "border-emerald-700/50 shadow-[0_12px_32px_rgba(0,0,0,0.6)]"
           : "border-red-900/60 shadow-[0_12px_32px_rgba(0,0,0,0.6)]",
         t?.visible
           ? "opacity-100 translate-y-0 scale-100"
@@ -26,7 +26,7 @@ export function ToastCard({ t, type = "success", message }) {
           className={cn(
             "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl",
             isSuccess
-              ? "bg-[#282216] text-[#FDE047] border border-[#443820]"
+              ? "bg-emerald-950/80 text-emerald-400 border border-emerald-700/60"
               : "bg-red-950/60 text-red-400 border border-red-800/60"
           )}
         >
@@ -56,7 +56,7 @@ export function ToastCard({ t, type = "success", message }) {
         <div
           className={cn(
             "h-full animate-toast-progress origin-left",
-            isSuccess ? "bg-[#FDE047]" : "bg-red-500"
+            isSuccess ? "bg-emerald-500" : "bg-red-500"
           )}
         />
       </div>
