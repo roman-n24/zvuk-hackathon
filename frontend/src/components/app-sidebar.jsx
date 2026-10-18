@@ -416,7 +416,7 @@ export function AppSidebar() {
 
       {/* Самый нижний уровень */}
       <SidebarFooter className={cn(
-        "border-t border-[#262626]/60 mt-auto flex flex-col transition-all duration-300",
+        "sticky bottom-0 z-20 bg-[#171717] shrink-0 border-t border-[#262626]/60 mt-auto flex flex-col transition-all duration-300",
         isExpanded ? "p-3 gap-2" : "p-3 pb-4 gap-4 items-center"
       )}>
         {/* Профиль пользователя или кнопка авторизации */}

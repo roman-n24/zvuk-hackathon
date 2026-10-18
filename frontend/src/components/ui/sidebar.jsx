@@ -77,6 +77,10 @@ export function SidebarProvider({
     >
       <div
         className={cn("flex min-h-screen w-full bg-white text-neutral-900", className)}
+        style={{
+          "--sidebar-width": isMobile ? "0px" : open ? "16rem" : "72px",
+          ...(props.style || {}),
+        }}
         {...props}
       >
         {children}
@@ -101,12 +105,12 @@ export function Sidebar({ className, children, ...props }) {
         {/* Выезжающая панель меню */}
         <aside
           className={cn(
-            "relative z-10 flex h-full w-[290px] max-w-[85vw] flex-col bg-[#171717] border-r border-[#262626] text-neutral-100 shadow-2xl transition-transform duration-300 ease-out select-none overflow-hidden",
+            "relative z-10 flex h-full h-[100dvh] w-[290px] max-w-[85vw] flex-col bg-[#171717] border-r border-[#262626] text-neutral-100 shadow-2xl transition-transform duration-300 ease-out select-none overflow-hidden",
             className
           )}
           {...props}
         >
-          <div className="flex h-full w-full flex-col overflow-y-auto overflow-x-hidden">
+          <div className="flex h-full w-full flex-col overflow-hidden">
             {children}
           </div>
         </aside>
@@ -118,13 +122,13 @@ export function Sidebar({ className, children, ...props }) {
     <aside
       data-state={open ? "expanded" : "collapsed"}
       className={cn(
-        "relative hidden md:flex flex-col border-r border-[#262626] bg-[#171717] text-neutral-100 transition-all duration-300 ease-in-out shrink-0 select-none overflow-hidden",
+        "relative self-stretch min-h-screen hidden md:flex flex-col border-r border-[#262626] bg-[#171717] text-neutral-100 transition-all duration-300 ease-in-out shrink-0 select-none z-30",
         open ? "w-64" : "w-[72px]",
         className
       )}
       {...props}
     >
-      <div className="flex h-full w-full flex-col overflow-x-hidden">
+      <div className="sticky top-0 h-screen h-[100dvh] flex flex-col w-full overflow-hidden">
         {children}
       </div>
     </aside>
@@ -166,7 +170,7 @@ export function SidebarHeader({ className, ...props }) {
   return (
     <div
       className={cn(
-        "border-b border-[#262626]/60 p-3",
+        "shrink-0 sticky top-0 z-20 bg-[#171717] border-b border-[#262626]/60 p-3",
         open ? "flex items-center justify-between" : "flex flex-col items-center justify-center gap-4 px-2 py-4",
         className
       )}
@@ -178,7 +182,10 @@ export function SidebarHeader({ className, ...props }) {
 export function SidebarFooter({ className, ...props }) {
   return (
     <div
-      className={cn("mt-auto flex flex-col justify-center", className)}
+      className={cn(
+        "mt-auto shrink-0 sticky bottom-0 z-20 bg-[#171717] border-t border-[#262626]/60 flex flex-col justify-center",
+        className
+      )}
       {...props}
     />
   );
@@ -189,7 +196,7 @@ export function SidebarContent({ className, ...props }) {
   return (
     <div
       className={cn(
-        "flex flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden p-4",
+        "flex flex-1 min-h-0 flex-col gap-2 overflow-y-auto overflow-x-hidden p-4",
         !open && "p-2 items-center gap-6",
         className
       )}

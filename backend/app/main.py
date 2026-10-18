@@ -43,6 +43,23 @@ async def startup_event():
     except Exception as e:
         print("Tables create_all check:", e)
     try:
+        with engine.begin() as conn:
+            conn.execute(text("CREATE EXTENSION IF NOT EXISTS pg_trgm;"))
+            conn.execute(
+                text(
+                    "CREATE INDEX IF NOT EXISTS ix_library_tracks_trgm "
+                    "ON library_tracks USING gin (title gin_trgm_ops, artist gin_trgm_ops);"
+                )
+            )
+            conn.execute(
+                text(
+                    "CREATE INDEX IF NOT EXISTS ix_tracks_trgm "
+                    "ON tracks USING gin (title gin_trgm_ops, artist gin_trgm_ops);"
+                )
+            )
+    except Exception as e:
+        print("pg_trgm extension init check:", e)
+    try:
         from app.seed import seed_database
         seed_database()
     except Exception as e:

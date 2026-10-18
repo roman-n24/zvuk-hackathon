@@ -99,7 +99,7 @@ function LayoutInner({ children }) {
             </div>
           ) : isHomePage ? (
             <div className="pb-2">
-              <SearchBar placeholder="Поиск музыки и треков" />
+              <SearchBar placeholder="Поиск музыки (нечеткий поиск с опечатками)..." />
             </div>
           ) : null}
         </div>
@@ -129,7 +129,9 @@ function LayoutInner({ children }) {
               </p>
             </div>
           ) : isHomePage ? (
-            <SearchBar />
+            <div className="w-full">
+              <SearchBar placeholder="Поиск музыки по названию, автору или жанру..." />
+            </div>
           ) : null}
         </header>
 

@@ -16,7 +16,7 @@ body {
   color: #fff;
   background: #121212;
   font-family: Georgia, Cambria, "Times New Roman", Times, serif;
-  overflow-x: hidden;
+  overflow-x: clip;
   -webkit-tap-highlight-color: transparent;
 }
 

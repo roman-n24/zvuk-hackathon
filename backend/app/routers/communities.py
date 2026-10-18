@@ -17,7 +17,7 @@ from fastapi.responses import FileResponse
 from mutagen import File as MutagenFile
 from mutagen import MutagenError
 from pydantic import BaseModel, Field
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
 from app.auth import create_access_token, get_current_user
@@ -802,12 +802,206 @@ def moderation_history(
     return {"logs": [{"action": log.action, "details": log.details, "created_at": log.created_at, "display_name": actor.display_name if actor else "Система"} for log, actor in logs]}
 
 
+def _fuzzy_search_tracks(
+    db: Session,
+    q: str = "",
+    limit: int = 20,
+    genre: str | None = None,
+) -> list[dict]:
+    clean_q = (q or "").strip()
+    bind = db.get_bind()
+    is_postgres = bind.dialect.name == "postgresql"
+
+    if not clean_q:
+        stmt = select(LibraryTrack).order_by(LibraryTrack.created_at.asc())
+        if genre and genre != "Все жанры":
+            stmt = stmt.where(LibraryTrack.genre == genre)
+        tracks = db.scalars(stmt.limit(limit)).all()
+        if not tracks:
+            from app.seed import seed_library_tracks
+            seed_library_tracks(db)
+            tracks = db.scalars(stmt.limit(limit)).all()
+        return [
+            {
+                "id": str(t.id),
+                "key": t.key,
+                "library_key": t.key,
+                "title": t.title,
+                "artist": t.artist,
+                "genre": t.genre,
+                "duration": t.duration,
+                "duration_seconds": t.duration_seconds,
+                "color": t.color,
+                "gradient": t.gradient,
+                "description": t.description,
+                "file": t.file,
+                "audio_url": f"/audio/{t.file}" if t.file else None,
+                "source_type": "library",
+                "similarity": 1.0,
+            }
+            for t in tracks
+        ]
+
+    q_like = f"%{clean_q}%"
+
+    if is_postgres:
+        sql = """
+        WITH candidate_tracks AS (
+            SELECT 
+                id::text AS id,
+                key,
+                key AS library_key,
+                title,
+                artist,
+                genre,
+                duration,
+                duration_seconds,
+                color,
+                gradient,
+                description,
+                file,
+                'library' AS source_type,
+                NULL::text AS room_id,
+                CASE 
+                    WHEN file IS NOT NULL AND file != '' THEN '/audio/' || file 
+                    ELSE NULL 
+                END AS audio_url
+            FROM library_tracks
+            UNION ALL
+            SELECT 
+                DISTINCT ON (title, artist)
+                t.id::text AS id,
+                'upload-' || t.id::text AS key,
+                t.library_key,
+                t.title,
+                t.artist,
+                t.genre,
+                to_char(to_timestamp(t.duration_seconds), 'MI:SS') AS duration,
+                t.duration_seconds,
+                '#f59e0b' AS color,
+                'from-amber-500 via-orange-600 to-yellow-700' AS gradient,
+                'Пользовательский трек' AS description,
+                t.storage_key AS file,
+                'upload' AS source_type,
+                t.room_id::text AS room_id,
+                '/api/communities/' || t.room_id::text || '/tracks/' || t.id::text || '/stream' AS audio_url
+            FROM tracks t
+            WHERE t.source_type = 'upload'
+        )
+        SELECT 
+            id, key, library_key, title, artist, genre, duration, duration_seconds,
+            color, gradient, description, file, source_type, room_id, audio_url,
+            ROUND(
+                GREATEST(
+                    word_similarity(:q, title),
+                    word_similarity(:q, coalesce(artist, '')),
+                    word_similarity(:q, coalesce(genre, '')),
+                    similarity(title || ' ' || coalesce(artist, ''), :q),
+                    CASE WHEN lower(title) = lower(:q) THEN 1.0 ELSE 0.0 END,
+                    CASE WHEN title ILIKE :q_like THEN 0.95 ELSE 0.0 END,
+                    CASE WHEN coalesce(artist, '') ILIKE :q_like THEN 0.90 ELSE 0.0 END,
+                    CASE WHEN coalesce(genre, '') ILIKE :q_like THEN 0.85 ELSE 0.0 END
+                )::numeric, 3
+            ) AS similarity
+        FROM candidate_tracks
+        WHERE 
+            (:genre IS NULL OR genre = :genre)
+            AND (
+                word_similarity(:q, title) > 0.20
+                OR word_similarity(:q, coalesce(artist, '')) > 0.20
+                OR word_similarity(:q, coalesce(genre, '')) > 0.20
+                OR similarity(title || ' ' || coalesce(artist, ''), :q) > 0.18
+                OR title ILIKE :q_like
+                OR coalesce(artist, '') ILIKE :q_like
+                OR coalesce(genre, '') ILIKE :q_like
+            )
+        ORDER BY similarity DESC, title ASC
+        LIMIT :limit;
+        """
+        rows = db.execute(
+            text(sql),
+            {
+                "q": clean_q,
+                "q_like": q_like,
+                "genre": genre if (genre and genre != "Все жанры") else None,
+                "limit": limit,
+            },
+        ).mappings().all()
+
+        results = []
+        for r in rows:
+            item = dict(r)
+            if item.get("similarity") is not None:
+                item["similarity"] = float(item["similarity"])
+            results.append(item)
+        return results
+    else:
+        stmt = select(LibraryTrack).where(
+            LibraryTrack.title.ilike(q_like)
+            | LibraryTrack.artist.ilike(q_like)
+            | LibraryTrack.genre.ilike(q_like)
+        )
+        if genre and genre != "Все жанры":
+            stmt = stmt.where(LibraryTrack.genre == genre)
+        tracks = db.scalars(stmt.limit(limit)).all()
+        return [
+            {
+                "id": str(t.id),
+                "key": t.key,
+                "library_key": t.key,
+                "title": t.title,
+                "artist": t.artist,
+                "genre": t.genre,
+                "duration": t.duration,
+                "duration_seconds": t.duration_seconds,
+                "color": t.color,
+                "gradient": t.gradient,
+                "description": t.description,
+                "file": t.file,
+                "audio_url": f"/audio/{t.file}" if t.file else None,
+                "source_type": "library",
+                "similarity": 0.9,
+            }
+            for t in tracks
+        ]
+
+
+@router.get("/tracks/search")
+@router.get("/search")
+def search_tracks(
+    q: str = Query("", description="Поисковый запрос для нечеткого поиска музыки (Fuzzy Search)"),
+    limit: int = Query(20, ge=1, le=100),
+    genre: str | None = None,
+    db: Session = Depends(get_db),
+):
+    """
+    Fuzzy search tracks using PostgreSQL pg_trgm trigram similarity.
+    Provides typo-tolerant search across track title, artist, and genre.
+    """
+    results = _fuzzy_search_tracks(db, q=q, limit=limit, genre=genre)
+    return {
+        "query": q,
+        "count": len(results),
+        "tracks": results,
+    }
+
+
 @router.get("/library")
 def get_library(
     db: Session = Depends(get_db),
     genre: str | None = None,
+    search: str | None = None,
 ):
-    """Get all studio library tracks from the database, optionally filtered by genre."""
+    """Get all studio library tracks from the database, optionally filtered by genre or fuzzy search."""
+    if search and search.strip():
+        tracks_data = _fuzzy_search_tracks(db, q=search.strip(), genre=genre)
+        all_tracks = db.scalars(select(LibraryTrack).order_by(LibraryTrack.created_at.asc())).all()
+        all_genres = ["Все жанры"] + sorted(list({t.genre for t in all_tracks if t.genre}))
+        return {
+            "tracks": tracks_data,
+            "genres": all_genres,
+        }
+
     stmt = select(LibraryTrack).order_by(LibraryTrack.created_at.asc())
     if genre and genre != "Все жанры":
         stmt = stmt.where(LibraryTrack.genre == genre)
@@ -825,6 +1019,7 @@ def get_library(
         {
             "id": str(t.id),
             "key": t.key,
+            "library_key": t.key,
             "title": t.title,
             "artist": t.artist,
             "genre": t.genre,
@@ -834,6 +1029,8 @@ def get_library(
             "gradient": t.gradient,
             "description": t.description,
             "file": t.file,
+            "audio_url": f"/audio/{t.file}" if t.file else None,
+            "source_type": "library",
         }
         for t in tracks
     ]

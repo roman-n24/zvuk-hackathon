@@ -35,6 +35,7 @@ import { cn } from "@/lib/utils";
 import { audioService } from "@/lib/audioService";
 import { EqualizerModal } from "@/components/EqualizerModal";
 import { QRCode } from "@/components/QRCode.jsx";
+import { useSidebar } from "@/components/ui/sidebar";
 
 const STUDIO_TRACKS = [
   {
@@ -137,6 +138,7 @@ export function PartyPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user: _authUser } = useAuth();
+  const { open: sidebarOpen } = useSidebar();
 
   const [activePartyId, setActivePartyId] = useState(null);
   const [partyState, setPartyState] = useState(null);
@@ -1250,14 +1252,19 @@ export function PartyPage() {
       </div>
 
       {/* ═══ МИНИ-ПЛЕЕР ВНИЗУ ═════════════════════════════════════════════════ */}
-      <div className="fixed bottom-[58px] md:bottom-0 left-0 right-0 z-40 bg-[#121008]/95 backdrop-blur-xl border-t border-[#332a14]">
+      <div
+        className={cn(
+          "fixed bottom-[58px] md:bottom-0 right-0 z-40 bg-[#121008]/95 backdrop-blur-xl border-t border-[#332a14] transition-all duration-300 ease-in-out",
+          sidebarOpen ? "left-0 md:left-64" : "left-0 md:left-[72px]"
+        )}
+      >
         <div className="h-0.5 w-full bg-neutral-800/80">
           <div
             className="h-full bg-yellow-400 shadow-[0_0_8px_#facc15] transition-[width] duration-500"
             style={{ width: `${player.progress}%` }}
           />
         </div>
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
+        <div className="w-full px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
           <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-yellow-400 via-amber-400 to-yellow-600 flex items-center justify-center text-neutral-950 shrink-0 shadow">
               <Music size={16} />
