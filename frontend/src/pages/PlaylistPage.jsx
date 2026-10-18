@@ -128,51 +128,51 @@ function TrackRow({ track, rank, isPlaying, canModerate, onPlay, onVote, onFavor
   const delta = (track.prevRank || rank) - rank;
   return (
     <div className={cn(
-      "flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all group",
+      "flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 sm:py-2.5 rounded-xl border transition-all group",
       isPlaying
         ? "bg-[#242016]/90 border-[#443820]"
         : "bg-transparent border-transparent hover:bg-[#171717] hover:border-[#262626]"
     )}>
-      <span className="w-5 text-center text-sm font-bold text-neutral-600 shrink-0">{rank}</span>
+      <span className="w-4 sm:w-5 text-center text-xs sm:text-sm font-bold text-neutral-600 shrink-0">{rank}</span>
 
       {/* Индикатор динамики */}
-      <span className="w-5 text-center shrink-0">
+      <span className="w-4 sm:w-5 text-center shrink-0">
         {delta > 0
-          ? <span className="text-[11px] text-[#FDE047] font-bold">▲{delta}</span>
+          ? <span className="text-[10px] sm:text-[11px] text-[#FDE047] font-bold">▲{delta}</span>
           : delta < 0
-          ? <span className="text-[11px] text-red-400 font-bold">▼{Math.abs(delta)}</span>
-          : <Minus size={10} className="text-neutral-700 inline" />}
+          ? <span className="text-[10px] sm:text-[11px] text-red-400 font-bold">▼{Math.abs(delta)}</span>
+          : <Minus size={9} className="text-neutral-700 inline" />}
       </span>
 
       <div className="relative cursor-pointer shrink-0" onClick={() => onPlay(track.id)}>
-        <TrackThumb gradient={track.gradient} size={44} />
+        <TrackThumb gradient={track.gradient} size={40} />
         <div className={cn(
           "absolute inset-0 rounded-xl bg-black/60 flex items-center justify-center transition-opacity",
           isPlaying ? "opacity-100" : "opacity-0 group-hover:opacity-100"
         )}>
-          {isPlaying ? <Pause size={16} className="text-[#FDE047] fill-[#FDE047]" /> : <Play size={16} className="text-white fill-white" />}
+          {isPlaying ? <Pause size={15} className="text-[#FDE047] fill-[#FDE047]" /> : <Play size={15} className="text-white fill-white ml-0.5" />}
         </div>
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className={cn("text-sm font-semibold truncate", isPlaying ? "text-[#FDE047]" : "text-white")}>{track.title}</p>
-        <p className="text-xs text-neutral-400 truncate">{track.artist}</p>
-        <p className="text-[11px] text-neutral-500 mt-0.5">
+        <p className={cn("text-xs sm:text-sm font-semibold truncate", isPlaying ? "text-[#FDE047]" : "text-white")}>{track.title}</p>
+        <p className="text-[11px] sm:text-xs text-neutral-400 truncate">{track.artist}</p>
+        <p className="text-[10px] sm:text-[11px] text-neutral-500 mt-0.5 truncate">
           Предложил: <span className="text-neutral-400">{track.proposer}</span> · {track.duration}
         </p>
       </div>
 
       <span className="text-xs text-neutral-500 tabular-nums hidden sm:block shrink-0">{track.duration}</span>
 
-      {/* Кнопка Добавить в избранное */}
+      {/* Кнопка Добавить в избранное (видима на мобильных без hover) */}
       <button
         type="button"
         onClick={() => onFavorite?.(track.id)}
         className={cn(
-          "w-7 h-7 rounded-lg flex items-center justify-center transition-all shrink-0 cursor-pointer",
+          "w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all shrink-0 cursor-pointer",
           track.is_favorite
-            ? "text-rose-500 hover:text-rose-400"
-            : "text-neutral-500 hover:text-rose-400 opacity-0 group-hover:opacity-100"
+            ? "text-rose-500 hover:text-rose-400 opacity-100"
+            : "text-neutral-400 hover:text-rose-400 opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
         )}
         title={track.is_favorite ? "В избранном" : "Добавить в избранное"}
       >
@@ -184,7 +184,7 @@ function TrackRow({ track, rank, isPlaying, canModerate, onPlay, onVote, onFavor
       {canModerate && (
         <button
           onClick={() => onDelete(track.id)}
-          className="w-7 h-7 rounded-lg flex items-center justify-center text-neutral-500 hover:text-red-400 hover:bg-red-950/30 transition-all opacity-0 group-hover:opacity-100 shrink-0 cursor-pointer"
+          className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-neutral-400 hover:text-red-400 hover:bg-red-950/30 transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 shrink-0 cursor-pointer"
           title="Удалить"
         >
           <Trash2 size={13} />
@@ -196,26 +196,28 @@ function TrackRow({ track, rank, isPlaying, canModerate, onPlay, onVote, onFavor
 
 function ModRow({ track, canModerate, onApprove, onReject }) {
   return (
-    <div className="flex items-center gap-3 px-3 py-3 rounded-xl border border-[#262626] bg-[#171717]">
-      <TrackThumb gradient={track.gradient} size={42} />
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-white truncate">{track.title}</p>
-        <p className="text-xs text-neutral-400 truncate">{track.artist}</p>
-        <p className="text-[11px] text-neutral-500 mt-0.5">
-          Предложил: <span className="text-neutral-400">{track.proposer}</span> · {track.duration}
-        </p>
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 sm:gap-3 p-3 rounded-xl border border-[#262626] bg-[#171717]">
+      <div className="flex items-center gap-3 min-w-0 flex-1 w-full sm:w-auto">
+        <TrackThumb gradient={track.gradient} size={38} />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-white truncate">{track.title}</p>
+          <p className="text-xs text-neutral-400 truncate">{track.artist}</p>
+          <p className="text-[11px] text-neutral-500 mt-0.5 truncate">
+            Предложил: <span className="text-neutral-400">{track.proposer}</span> · {track.duration}
+          </p>
+        </div>
       </div>
       {canModerate ? (
-        <div className="flex gap-2 shrink-0">
+        <div className="flex gap-2 shrink-0 w-full sm:w-auto justify-end pt-1 sm:pt-0 border-t sm:border-0 border-neutral-800/60">
           <button
             onClick={() => onApprove(track.id)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#282216] border border-[#443820] text-white hover:bg-[#342b1b] transition-colors cursor-pointer"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#282216] border border-[#443820] text-white hover:bg-[#342b1b] transition-colors cursor-pointer"
           >
             <CheckCircle size={12} className="text-[#FDE047]" /> Одобрить
           </button>
           <button
             onClick={() => onReject(track.id)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-950/30 border border-red-800/40 text-red-400 hover:bg-red-950/50 transition-colors cursor-pointer"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-950/30 border border-red-800/40 text-red-400 hover:bg-red-950/50 transition-colors cursor-pointer"
           >
             <XCircle size={12} /> Отклонить
           </button>
@@ -1271,43 +1273,43 @@ export function PlaylistPage() {
       </div>
 
       {/* ═══ ПАНЕЛЬ УПРАВЛЕНИЯ ════════════════════════════════════════════════ */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         {/* Родительский элемент для кнопок действий и плашки "Владелец" */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
           {/* Кнопка "Слушать всё" */}
           <button
             onClick={() => { const s = sortedTracks(tracks); if (s.length) playTrack(s[0].id); }}
-            className="h-10 px-4 rounded-xl bg-[#282216] border border-[#443820] hover:bg-[#342b1b] hover:border-[#524424] text-white font-medium text-sm transition-all inline-flex items-center gap-2 cursor-pointer shadow-xs"
+            className="flex-1 sm:flex-none h-10 px-3.5 sm:px-4 rounded-xl bg-[#282216] border border-[#443820] hover:bg-[#342b1b] hover:border-[#524424] text-white font-medium text-xs sm:text-sm transition-all inline-flex items-center justify-center gap-2 cursor-pointer shadow-xs whitespace-nowrap"
           >
-            <Play size={15} className="fill-[#FDE047] text-[#FDE047]" />
+            <Play size={15} className="fill-[#FDE047] text-[#FDE047] shrink-0" />
             <span className="text-white font-medium">Слушать всё</span>
           </button>
 
           {/* Кнопка "Предложить трек" */}
           <button
             onClick={() => setModalAdd(true)}
-            className="h-10 px-4 rounded-xl bg-[#282216] border border-[#443820] hover:bg-[#342b1b] hover:border-[#524424] text-white font-medium text-sm transition-all inline-flex items-center gap-2 cursor-pointer shadow-xs"
+            className="flex-1 sm:flex-none h-10 px-3.5 sm:px-4 rounded-xl bg-[#282216] border border-[#443820] hover:bg-[#342b1b] hover:border-[#524424] text-white font-medium text-xs sm:text-sm transition-all inline-flex items-center justify-center gap-2 cursor-pointer shadow-xs whitespace-nowrap"
           >
-            <Plus size={16} className="text-[#FDE047]" />
-            <span className="text-white font-medium">{playlist.creatorId === user.id ? "Добавить трек" : "Предложить трек"}</span>
+            <Plus size={16} className="text-[#FDE047] shrink-0" />
+            <span className="text-white font-medium">{playlist.creatorId === user.id ? "Добавить трек" : "Предложить"}</span>
           </button>
 
           {/* Элемент "Владелец" / "Модератор" / "Слушатель" */}
           {canModerate ? (
-            <span className="h-10 px-4 rounded-xl bg-[#171717] border border-[#262626] text-sm font-medium inline-flex items-center gap-2 select-none">
-              <ShieldCheck size={16} className="text-[#FDE047]" />
+            <span className="h-10 px-3 sm:px-4 rounded-xl bg-[#171717] border border-[#262626] text-xs sm:text-sm font-medium inline-flex items-center justify-center gap-1.5 sm:gap-2 select-none shrink-0">
+              <ShieldCheck size={15} className="text-[#FDE047]" />
               <span className="text-white">{playlist.creatorId === user.id ? "Владелец" : "Модератор"}</span>
             </span>
           ) : (
-            <span className="h-10 px-4 rounded-xl bg-[#171717] border border-[#262626] text-sm font-medium inline-flex items-center gap-2 select-none text-neutral-400" title="Вы слушаете синхронный эфир плейлиста">
-              <Users size={15} className="text-neutral-400" />
+            <span className="h-10 px-3 sm:px-4 rounded-xl bg-[#171717] border border-[#262626] text-xs sm:text-sm font-medium inline-flex items-center justify-center gap-1.5 sm:gap-2 select-none text-neutral-400 shrink-0" title="Вы слушаете синхронный эфир плейлиста">
+              <Users size={14} className="text-neutral-400" />
               <span>Слушатель</span>
             </span>
           )}
         </div>
 
         {/* Вкладки: Очередь и Модерация */}
-        <div className="flex bg-[#171717] border border-[#262626] rounded-xl p-1 gap-1">
+        <div className="flex w-full sm:w-auto bg-[#171717] border border-[#262626] rounded-xl p-1 gap-1">
           {[
             { key: "queue", label: "В очереди (Рейтинг)" },
             { key: "moderation", label: "На модерации", count: modQueue.length },
@@ -1316,13 +1318,13 @@ export function PlaylistPage() {
               key={key}
               onClick={() => setActiveTab(key)}
               className={cn(
-                "px-4 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer flex items-center gap-1.5",
+                "flex-1 sm:flex-initial px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all cursor-pointer flex items-center justify-center gap-1.5",
                 activeTab === key ? "bg-[#262626] text-white" : "text-neutral-400 hover:text-neutral-200"
               )}
             >
-              {label}
+              <span>{label}</span>
               {count > 0 && (
-                <span className="text-[11px] font-bold bg-[#282216] border border-[#443820] text-[#FDE047] rounded-full px-1.5 min-w-[18px] text-center">
+                <span className="text-[10px] sm:text-[11px] font-bold bg-[#282216] border border-[#443820] text-[#FDE047] rounded-full px-1.5 min-w-[18px] text-center">
                   {count}
                 </span>
               )}
@@ -1413,57 +1415,57 @@ export function PlaylistPage() {
       )}
 
       {/* ═══ МИНИ-ПЛЕЕР ═════════════════════════════════════════════════════ */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#0e0e0e]/95 backdrop-blur-xl border-t border-[#262626]">
+      <div className="fixed bottom-[58px] md:bottom-0 left-0 right-0 z-40 bg-[#0e0e0e]/95 backdrop-blur-xl border-t border-[#262626]">
         <div className="h-0.5 w-full bg-neutral-800 cursor-pointer" onClick={seekPlayer}>
           <div className="h-full bg-[#FDE047] transition-[width] duration-500" style={{ width: `${player.progress}%` }} />
         </div>
-        <div className="max-w-none px-6 py-3 flex items-center gap-4 flex-wrap">
-          <div className="flex items-center gap-3 flex-1 min-w-[160px]">
+        <div className="max-w-none px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
             {currentTrack ? (
-              <TrackThumb gradient={currentTrack.gradient} size={40} />
+              <TrackThumb gradient={currentTrack.gradient} size={38} />
             ) : (
-              <div className="w-10 h-10 rounded-xl bg-neutral-800 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-neutral-800 flex items-center justify-center shrink-0">
                 <Music size={16} className="text-neutral-600" />
               </div>
             )}
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold text-white truncate max-w-[150px]">{currentTrack?.title ?? "—"}</p>
+              <div className="flex items-center gap-1.5">
+                <p className="text-xs sm:text-sm font-semibold text-white truncate max-w-[120px] sm:max-w-[170px] md:max-w-[220px]">{currentTrack?.title ?? "—"}</p>
                 {player.playing && (
                   <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold text-[#FDE047] bg-[#282216] border border-[#443820] px-1.5 py-0.2 rounded-md">
                     <Radio size={10} className="animate-pulse" /> Эфир
                   </span>
                 )}
               </div>
-              <p className="text-xs text-neutral-400 truncate max-w-[150px]">{currentTrack?.artist ?? "Выберите трек"}</p>
+              <p className="text-[11px] sm:text-xs text-neutral-400 truncate max-w-[120px] sm:max-w-[170px] md:max-w-[220px]">{currentTrack?.artist ?? "Выберите трек"}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
             <button
               onClick={playerPrev}
               title={canModerate ? "Предыдущий трек" : "Только для администратора"}
-              className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white transition-colors rounded-lg hover:bg-neutral-800 cursor-pointer"
+              className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-neutral-400 hover:text-white transition-colors rounded-lg hover:bg-neutral-800 cursor-pointer"
             >
-              <SkipBack size={16} />
+              <SkipBack size={15} />
             </button>
             <button
               onClick={togglePlay}
               title={canModerate ? (player.playing ? "Пауза для всех" : "Воспроизведение для всех") : (player.playing ? "Слушать общий эфир" : "Только администратор включает эфир")}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-[#282216] border border-[#443820] text-white hover:bg-[#342b1b] hover:border-[#524424] transition-colors cursor-pointer"
+              className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-[#282216] border border-[#443820] text-white hover:bg-[#342b1b] hover:border-[#524424] transition-colors cursor-pointer"
             >
-              {player.playing ? <Pause size={17} className="fill-[#FDE047] text-[#FDE047]" /> : <Play size={17} className="fill-[#FDE047] text-[#FDE047] ml-0.5" />}
+              {player.playing ? <Pause size={16} className="fill-[#FDE047] text-[#FDE047]" /> : <Play size={16} className="fill-[#FDE047] text-[#FDE047] ml-0.5" />}
             </button>
             <button
               onClick={playerNext}
               title={canModerate ? "Следующий трек" : "Только для администратора"}
-              className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white transition-colors rounded-lg hover:bg-neutral-800 cursor-pointer"
+              className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-neutral-400 hover:text-white transition-colors rounded-lg hover:bg-neutral-800 cursor-pointer"
             >
-              <SkipForward size={16} />
+              <SkipForward size={15} />
             </button>
           </div>
 
-          <span className="text-xs text-neutral-500 tabular-nums shrink-0">{fmtTime(player.elapsed)} / {fmtTime(currentTrack?.duration_seconds || 45)}</span>
+          <span className="hidden sm:inline-block text-xs text-neutral-500 tabular-nums shrink-0">{fmtTime(player.elapsed)} / {fmtTime(currentTrack?.duration_seconds || 45)}</span>
           <NextBadge tracks={tracks} currentId={player.trackId} />
 
           {/* Контрол громкости */}
@@ -1499,7 +1501,7 @@ export function PlaylistPage() {
           <button
             onClick={() => setEqOpen(true)}
             className={cn(
-              "relative h-9 px-3 rounded-xl border flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95",
+              "relative h-8 sm:h-9 px-2.5 sm:px-3 rounded-xl border flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95",
               isFXActive
                 ? "bg-[#282216] border-[#FDE047]/60 text-[#FDE047] shadow-[0_0_12px_rgba(253,224,71,0.25)]"
                 : "bg-[#171717] border-[#2a2a2a] text-neutral-400 hover:text-white hover:border-[#3a3a3a]"

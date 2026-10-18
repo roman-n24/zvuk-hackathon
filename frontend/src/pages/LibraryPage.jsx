@@ -178,26 +178,26 @@ export function LibraryPage() {
       )}
 
       {/* Поиск и фильтры по жанрам */}
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row items-center gap-3 items-center">
-          <div className="relative w-full sm:w-96">
+      <div className="space-y-3 sm:space-y-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
+          <div className="relative w-full sm:w-96 shrink-0">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Поиск по названию или описанию..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#171717] border border-[#262626] text-sm text-white placeholder-neutral-500 outline-none focus:border-[#FDE047] transition-colors"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#171717] border border-[#262626] text-base sm:text-sm text-white placeholder-neutral-500 outline-none focus:border-[#FDE047] transition-colors"
             />
           </div>
 
-          <div className="flex items-center gap-1.5 overflow-x-auto w-full scrollbar-none items-center">
+          <div className="flex items-center gap-1.5 overflow-x-auto w-full scrollbar-none pb-1">
             {genres.map((g) => (
               <button
                 key={g}
                 onClick={() => setSelectedGenre(g)}
                 className={cn(
-                  "px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer p-2",
+                  "px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer shrink-0",
                   selectedGenre === g
                     ? "bg-[#282216] border border-[#443820] text-[#FDE047]"
                     : "bg-[#171717] border border-[#262626] text-neutral-400 hover:text-white"
@@ -218,47 +218,47 @@ export function LibraryPage() {
         </div>
       ) : (
         /* Сетка треков */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5">
           {filtered.map((track) => {
             const isPlaying = playingKey === track.key;
             return (
               <div
                 key={track.key}
                 className={cn(
-                  "rounded-2xl border p-5 flex flex-col justify-between transition-all group bg-[#171717]",
+                  "rounded-2xl border p-4 sm:p-5 flex flex-col justify-between transition-all group bg-[#171717]",
                   isPlaying
                     ? "border-[#443820] shadow-lg shadow-[#FDE047]/10 bg-gradient-to-b from-[#262116] to-[#171717]"
                     : "border-[#262626] hover:border-neutral-700"
                 )}
               >
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div className="flex items-center justify-between">
                     {/* Обложка с кнопкой Play */}
                     <div
                       onClick={() => handlePlayToggle(track)}
                       className={cn(
-                        "relative h-16 w-16 rounded-2xl bg-gradient-to-br flex items-center justify-center cursor-pointer shadow-md overflow-hidden shrink-0 group/cover",
+                        "relative h-14 w-14 sm:h-16 sm:w-16 rounded-xl sm:rounded-2xl bg-gradient-to-br flex items-center justify-center cursor-pointer shadow-md overflow-hidden shrink-0 group/cover",
                         track.gradient || "from-violet-600 to-purple-800"
                       )}
                     >
-                      <Music className="h-7 w-7 text-white/50 group-hover/cover:scale-90 transition-transform" />
+                      <Music className="h-6 w-6 sm:h-7 sm:w-7 text-white/50 group-hover/cover:scale-90 transition-transform" />
                       <div
                         className={cn(
                           "absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity",
-                          isPlaying ? "opacity-100" : "opacity-0 group-hover/cover:opacity-100"
+                          isPlaying ? "opacity-100" : "opacity-90 sm:opacity-0 sm:group-hover/cover:opacity-100"
                         )}
                       >
                         {isPlaying ? (
-                          <Pause className="h-6 w-6 text-[#FDE047] fill-[#FDE047]" />
+                          <Pause className="h-5 w-5 sm:h-6 sm:w-6 text-[#FDE047] fill-[#FDE047]" />
                         ) : (
-                          <Play className="h-6 w-6 text-white fill-white ml-0.5" />
+                          <Play className="h-5 w-5 sm:h-6 sm:w-6 text-white fill-white ml-0.5" />
                         )}
                       </div>
                     </div>
 
                     {/* Бейдж жанра и длительность */}
                     <div className="flex flex-col items-end gap-1">
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#242016] border border-[#4a3f24] text-[#FDE047]">
+                      <span className="text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#242016] border border-[#4a3f24] text-[#FDE047]">
                         {track.genre}
                       </span>
                       <span className="text-xs text-neutral-500 tabular-nums font-mono">
@@ -269,23 +269,23 @@ export function LibraryPage() {
 
                   {/* Инфо о треке */}
                   <div>
-                    <h3 className="text-lg font-bold text-white group-hover:text-[#FDE047] transition-colors truncate">
+                    <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-[#FDE047] transition-colors truncate">
                       {track.title}
                     </h3>
-                    <p className="text-xs text-neutral-400 mt-0.5">{track.artist}</p>
-                    <p className="text-xs text-neutral-500 mt-2 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-neutral-400 mt-0.5 truncate">{track.artist}</p>
+                    <p className="text-xs text-neutral-500 mt-1.5 sm:mt-2 line-clamp-2 leading-relaxed">
                       {track.description}
                     </p>
                   </div>
                 </div>
 
                 {/* Нижняя панель действий */}
-                <div className="pt-4 mt-4 border-t border-neutral-800/80 flex items-center justify-between gap-2">
+                <div className="pt-3.5 mt-3.5 sm:pt-4 sm:mt-4 border-t border-neutral-800/80 flex items-center justify-between gap-2">
                   <button
                     type="button"
                     onClick={() => handlePlayToggle(track)}
                     className={cn(
-                      "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer",
+                      "flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer",
                       isPlaying
                         ? "bg-[#282216] text-[#FDE047]"
                         : "bg-[#202020] text-neutral-300 hover:text-white"
@@ -307,7 +307,7 @@ export function LibraryPage() {
                   <button
                     type="button"
                     onClick={() => handleOpenAddModal(track)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#282216] border border-[#443820] text-[#FDE047] text-xs font-semibold hover:bg-[#342b1b] transition-colors cursor-pointer"
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1 px-3 py-2 sm:py-1.5 rounded-lg bg-[#282216] border border-[#443820] text-[#FDE047] text-xs font-semibold hover:bg-[#342b1b] transition-colors cursor-pointer whitespace-nowrap"
                     title="Добавить в плейлист комнаты"
                   >
                     <FolderPlus className="h-3.5 w-3.5" />

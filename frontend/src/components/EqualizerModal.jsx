@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -87,7 +87,7 @@ function VerticalSlider({ band, value, onChange, onReset }) {
         onPointerUp={handlePointerUp}
         onDoubleClick={onReset}
         title="Перетащите для регулировки, двойной клик для сброса в 0 dB"
-        className="relative w-12 h-44 py-3 flex items-center justify-center cursor-ns-resize group touch-none"
+        className="relative w-12 h-36 sm:h-44 py-3 flex items-center justify-center cursor-ns-resize group touch-none"
       >
         {/* Фоновый желоб */}
         <div className="relative w-2.5 h-full rounded-full bg-[#141414] border border-[#2a2a2a] overflow-hidden flex flex-col justify-end">
@@ -260,33 +260,33 @@ export function EqualizerModal({ open, onOpenChange }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px] bg-[#14120e] border-[#2b2518] text-white p-6 rounded-3xl shadow-2xl">
+      <DialogContent className="sm:max-w-[480px] bg-[#14120e] border-[#2b2518] text-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-2xl max-h-[88vh] overflow-y-auto">
         {/* Заголовок */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#242016] border border-[#4a3f24] text-[#FDE047] flex items-center justify-center shadow-[0_0_12px_rgba(253,224,71,0.15)]">
+        <div className="flex items-center justify-between gap-3 mb-4 pr-12">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-2xl bg-[#242016] border border-[#4a3f24] text-[#FDE047] flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(253,224,71,0.15)]">
               <Sliders size={20} />
             </div>
-            <div>
+            <div className="min-w-0 mr-3">
               <DialogTitle className="text-lg font-black text-white m-0 tracking-tight flex items-center gap-2">
                 DJ Эквалайзер
                 {eqState.isFXActive && (
                   <span className="w-2 h-2 rounded-full bg-[#FDE047] animate-pulse" />
                 )}
               </DialogTitle>
-              <DialogDescription className="text-xs text-neutral-400 m-0">
+              <DialogDescription className="text-xs text-neutral-400 m-0 mt-0.5">
                 Web Audio 3-полосный тон и пространственные эффекты
               </DialogDescription>
             </div>
           </div>
 
           <button
+            type="button"
             onClick={handleResetAll}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-600 text-xs font-semibold transition-all cursor-pointer active:scale-95"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 hover:bg-[#242016] border border-neutral-800 hover:border-[#4a3f24] text-neutral-400 hover:text-[#FDE047] text-xs font-semibold transition-all cursor-pointer active:scale-95 shrink-0"
             title="Сбросить все настройки в 0 dB"
           >
-            <RotateCcw size={13} />
-            Сброс
+            <RotateCcw size={18} />
           </button>
         </div>
 
@@ -380,14 +380,7 @@ export function EqualizerModal({ open, onOpenChange }) {
               <DoorClosed size={20} />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-bold text-white">🚪 Звук за дверью</p>
-                {eqState.lowpass && (
-                  <span className="text-[10px] font-black text-amber-400 bg-amber-950/60 border border-amber-800/60 px-2 py-0.2 rounded-full uppercase tracking-wider animate-pulse">
-                    ON · 400 Hz
-                  </span>
-                )}
-              </div>
+              <p className="text-sm font-bold text-white mb-1">Звук за дверью</p>
               <p className="text-xs text-neutral-400">
                 DJ Lowpass фильтр: эффект музыки из соседней комнаты
               </p>

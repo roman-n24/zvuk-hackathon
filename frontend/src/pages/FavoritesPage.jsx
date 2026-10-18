@@ -158,30 +158,30 @@ export function FavoritesPage() {
       </div>
 
       {/* Вкладки: Треки и Сообщества */}
-      <div className="flex bg-[#171717] border border-[#262626] rounded-xl p-1 gap-1 w-fit">
+      <div className="flex w-full sm:w-fit bg-[#171717] border border-[#262626] rounded-xl p-1 gap-1">
         <button
           onClick={() => setActiveTab("tracks")}
           className={cn(
-            "px-5 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer flex items-center gap-2",
+            "flex-1 sm:flex-initial px-3 sm:px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2",
             activeTab === "tracks"
               ? "bg-[#262626] text-white"
               : "text-neutral-400 hover:text-white"
           )}
         >
-          <Music className="h-4 w-4 text-[#FDE047]" />
+          <Music className="h-4 w-4 text-[#FDE047] shrink-0" />
           <span>Треки ({favorites.length})</span>
         </button>
 
         <button
           onClick={() => setActiveTab("communities")}
           className={cn(
-            "px-5 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer flex items-center gap-2",
+            "flex-1 sm:flex-initial px-3 sm:px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2",
             activeTab === "communities"
               ? "bg-[#262626] text-white"
               : "text-neutral-400 hover:text-white"
           )}
         >
-          <Users className="h-4 w-4 text-[#FDE047]" />
+          <Users className="h-4 w-4 text-[#FDE047] shrink-0" />
           <span>Сообщества ({communities.length})</span>
         </button>
       </div>
@@ -198,32 +198,32 @@ export function FavoritesPage() {
                   <div
                     key={track.id}
                     className={cn(
-                      "flex items-center justify-between gap-3 p-3 sm:p-4 rounded-xl border transition-all bg-[#171717]",
+                      "flex items-center justify-between gap-2.5 sm:gap-3 p-2.5 sm:p-4 rounded-xl border transition-all bg-[#171717]",
                       isPlaying
                         ? "border-[#443820] bg-[#242016]/90 shadow-md"
                         : "border-[#262626] hover:border-neutral-700"
                     )}
                   >
-                    <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                    <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
                       {/* Обложка с Play */}
                       <div
                         onClick={() => handlePlayToggle(track)}
                         className={cn(
-                          "relative h-12 w-12 rounded-xl bg-gradient-to-br flex items-center justify-center cursor-pointer shadow-sm overflow-hidden shrink-0 group/cover",
+                          "relative h-10 w-10 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl bg-gradient-to-br flex items-center justify-center cursor-pointer shadow-sm overflow-hidden shrink-0 group/cover",
                           grad
                         )}
                       >
-                        <Music className="h-5 w-5 text-white/50" />
+                        <Music className="h-4 w-4 sm:h-5 sm:w-5 text-white/50" />
                         <div
                           className={cn(
                             "absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity",
-                            isPlaying ? "opacity-100" : "opacity-0 group-hover/cover:opacity-100"
+                            isPlaying ? "opacity-100" : "opacity-90 sm:opacity-0 sm:group-hover/cover:opacity-100"
                           )}
                         >
                           {isPlaying ? (
-                            <Pause className="h-5 w-5 text-[#FDE047] fill-[#FDE047]" />
+                            <Pause className="h-4 w-4 sm:h-5 sm:w-5 text-[#FDE047] fill-[#FDE047]" />
                           ) : (
-                            <Play className="h-5 w-5 text-white fill-white ml-0.5" />
+                            <Play className="h-4 w-4 sm:h-5 sm:w-5 text-white fill-white ml-0.5" />
                           )}
                         </div>
                       </div>
@@ -232,17 +232,17 @@ export function FavoritesPage() {
                       <div className="min-w-0 flex-1">
                         <div
                           className={cn(
-                            "text-sm font-bold truncate",
+                            "text-xs sm:text-sm font-bold truncate",
                             isPlaying ? "text-[#FDE047]" : "text-white"
                           )}
                         >
                           {track.title}
                         </div>
-                        <div className="text-xs text-neutral-400 truncate">
+                        <div className="text-[11px] sm:text-xs text-neutral-400 truncate">
                           {track.artist}
                         </div>
                         {track.room_name && (
-                          <div className="text-[11px] text-neutral-500 mt-0.5 truncate">
+                          <div className="text-[10px] sm:text-[11px] text-neutral-500 mt-0.5 truncate">
                             Из комнаты: <span className="text-neutral-400">{track.room_name}</span>
                           </div>
                         )}
@@ -302,11 +302,11 @@ export function FavoritesPage() {
       {activeTab === "communities" && (
         <div className="space-y-4">
           {communities.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
               {communities.map((c) => (
                 <div
                   key={c.id}
-                  className="rounded-2xl bg-[#171717] border border-[#262626] p-5 flex flex-col justify-between hover:border-neutral-700 transition-all group"
+                  className="rounded-2xl bg-[#171717] border border-[#262626] p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700 transition-all group"
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">

@@ -70,7 +70,7 @@ export function SearchBar({
         onKeyDown={handleKeyDown}
         placeholder={isCentered ? "" : placeholder}
         className={cn(
-          "w-full h-full bg-transparent text-white text-sm placeholder-neutral-400 outline-none",
+          "w-full h-full bg-transparent text-white text-base sm:text-sm placeholder-neutral-400 outline-none",
           isCentered && "opacity-0"
         )}
       />

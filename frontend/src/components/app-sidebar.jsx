@@ -28,8 +28,9 @@ import {
   LogOut,
   User as UserIcon,
   Flame,
+  X,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Popup } from "./Popup";
 import { useAuth } from "@/lib/auth";
@@ -44,7 +45,9 @@ const items = [
 
 export function AppSidebar() {
   const navigate = useNavigate();
-  const { open } = useSidebar();
+  const location = useLocation();
+  const { open, isMobile, setOpenMobile } = useSidebar();
+  const isExpanded = isMobile || open;
   const { user, isAuthenticated, logout } = useAuth();
   const [communities, setCommunities] = useState([]);
   const [sharingBaseUrl, setSharingBaseUrl] = useState("");
@@ -181,17 +184,52 @@ export function AppSidebar() {
       <SidebarHeader
         className={cn(
           "border-b border-[#262626]/60 p-3 transition-all",
-          open
+          isExpanded
             ? "flex-row items-center justify-between"
             : "flex-col items-center justify-center gap-3 px-2 py-3"
         )}
         style={{
           display: "flex",
-          justifyContent: open ? "space-between" : "center",
+          justifyContent: isExpanded ? "space-between" : "center",
           alignItems: "center",
         }}
       >
-        {open ? (
+        {isMobile ? (
+          <div className="flex items-center justify-between w-full px-1">
+            <Link
+              to="/"
+              onClick={() => setOpenMobile(false)}
+              className="flex items-center gap-3 px-1 py-1 rounded-xl transition-colors hover:bg-neutral-800/50 select-none min-w-0"
+            >
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FDE047] shadow-xs">
+                <svg
+                  viewBox="0 0 36 36"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                >
+                  <rect x="7.5" y="13" width="3" height="10" rx="1.5" fill="#171717" />
+                  <rect x="12.5" y="9" width="3" height="18" rx="1.5" fill="#171717" />
+                  <rect x="17.5" y="6" width="3" height="24" rx="1.5" fill="#171717" />
+                  <rect x="22.5" y="9" width="3" height="18" rx="1.5" fill="#171717" />
+                  <rect x="27.5" y="13" width="3" height="10" rx="1.5" fill="#171717" />
+                </svg>
+              </div>
+              <span className="text-2xl font-bold tracking-tight text-white flex items-baseline truncate">
+                ритм<span className="text-[#FDE047] text-2xl font-black">.</span>
+              </span>
+            </Link>
+            <button
+              type="button"
+              onClick={() => setOpenMobile(false)}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-neutral-400 hover:bg-[#262626] hover:text-white transition-colors cursor-pointer"
+              title="Закрыть меню"
+              aria-label="Закрыть меню"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        ) : open ? (
           <>
             <Link
               to="/"
@@ -223,14 +261,14 @@ export function AppSidebar() {
             <Link
               to="/"
               title="ритм."
-              className="flex items-center justify-center rounded-xl transition-colors hover:bg-neutral-800/50 select-none p-1"
+              className="flex items-center justify-center rounded-2xl transition-colors hover:bg-neutral-800/50 select-none p-0.5"
             >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FDE047] shadow-xs">
+              <div className="flex h-12 w-12 shrink-0 aspect-square items-center justify-center rounded-2xl bg-[#FDE047] shadow-xs">
                 <svg
                   viewBox="0 0 36 36"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
+                  className="h-7 w-7"
                 >
                   <rect x="7.5" y="13" width="3" height="10" rx="1.5" fill="#171717" />
                   <rect x="12.5" y="9" width="3" height="18" rx="1.5" fill="#171717" />
@@ -246,27 +284,47 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          {open && <SidebarGroupLabel>Музыка</SidebarGroupLabel>}
+          {isExpanded && <SidebarGroupLabel>Музыка</SidebarGroupLabel>}
           <SidebarGroupContent>
-            <SidebarMenu className="flex space-between center">
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link to={item.url} title={item.title} className="flex items-center justify-between w-full">
-                      <div className="flex items-center gap-2">
-                        <item.icon className={item.badge ? "text-yellow-400" : ""} />
-                        {open && <span>{item.title}</span>}
-                      </div>
-                      {open && item.badge && (
-                        <span className="text-[10px] font-black px-1.5 py-0.2 rounded-full bg-yellow-400/20 text-yellow-300 border border-yellow-400/40 flex items-center gap-1 animate-pulse">
-                          <span className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
-                          {item.badge}
-                        </span>
-                      )}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+            <SidebarMenu className={cn(!isExpanded && "items-center")}>
+              {items.map((item) => {
+                const isActive = location.pathname === item.url;
+                return (
+                  <SidebarMenuItem key={item.title} className={cn(!isExpanded && "flex justify-center w-full")}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                    >
+                      <Link
+                        to={item.url}
+                        title={item.title}
+                        onClick={() => isMobile && setOpenMobile(false)}
+                        className={cn(
+                          "flex items-center transition-colors",
+                          isExpanded ? "justify-between w-full" : "justify-center"
+                        )}
+                      >
+                        {isExpanded ? (
+                          <>
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <item.icon className={cn("h-5 w-5 shrink-0", item.badge ? "text-yellow-400" : "")} />
+                              <span className="truncate">{item.title}</span>
+                            </div>
+                            {item.badge && (
+                              <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-yellow-400/20 text-yellow-300 border border-yellow-400/40 flex items-center gap-1 animate-pulse shrink-0">
+                                <span className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
+                                {item.badge}
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          <item.icon className={cn("h-6 w-6 shrink-0", item.badge ? "text-yellow-400" : "")} />
+                        )}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -276,7 +334,7 @@ export function AppSidebar() {
 
         {/* Твои сообщества */}
         <SidebarGroup>
-          {open ? (
+          {isExpanded ? (
             <div className="flex items-center justify-between pr-2 mb-1">
               <SidebarGroupLabel>Твои сообщества</SidebarGroupLabel>
               <button
@@ -291,30 +349,35 @@ export function AppSidebar() {
               </button>
             </div>
           ) : (
-            <div className="flex justify-center mb-1 w-full">
+            <div className="flex justify-center mb-4 w-full">
               <button
                 type="button"
                 onClick={() => setIsCreateOpen(true)}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-400 hover:bg-[#262626] hover:text-white transition-colors cursor-pointer"
+                className="flex h-12 w-12 aspect-square items-center justify-center rounded-2xl bg-[#1b1b1b] border border-[#282828] text-neutral-400 hover:bg-[#262626] hover:text-white hover:border-neutral-600 transition-all cursor-pointer shadow-xs"
                 title="Добавить сообщество"
                 aria-label="Добавить сообщество"
               >
-                <Plus className="h-5 w-5" />
+                <Plus className="h-6 w-6" />
                 <span className="sr-only">+</span>
               </button>
             </div>
           )}
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className={cn(!isExpanded && "items-center")}>
               {communities.map((community) => (
-                <SidebarMenuItem key={community.id} className="group relative">
-                  <SidebarMenuButton asChild className={cn(open ? "pr-8" : "justify-center px-0")}>
-                    <Link to={community.url} title={community.name}>
-                      <Users className="h-4 w-4 shrink-0" />
-                      {open && <span className="truncate">{community.name}</span>}
+                <SidebarMenuItem key={community.id} className={cn("group relative", !isExpanded && "flex justify-center w-full")}>
+                  <SidebarMenuButton asChild className={cn(isExpanded && "pr-8")}>
+                    <Link
+                      to={community.url}
+                      title={community.name}
+                      onClick={() => isMobile && setOpenMobile(false)}
+                      className={cn(!isExpanded && "justify-center")}
+                    >
+                      <Users className={cn(isExpanded ? "h-4 w-4" : "h-6 w-6", "shrink-0")} />
+                      {isExpanded && <span className="truncate">{community.name}</span>}
                     </Link>
                   </SidebarMenuButton>
-                  {open && (
+                  {isExpanded && (
                     <button
                       type="button"
                       onClick={(e) => {
@@ -322,7 +385,10 @@ export function AppSidebar() {
                         e.stopPropagation();
                         handleRemoveCommunity(community.id);
                       }}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded text-neutral-400 opacity-0 group-hover:opacity-100 hover:bg-[#333] hover:text-red-400 transition-opacity transition-colors cursor-pointer"
+                      className={cn(
+                        "absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded text-neutral-400 hover:bg-[#333] hover:text-red-400 transition-colors cursor-pointer",
+                        isMobile ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                      )}
                       title="Удалить сообщество"
                       aria-label="Удалить сообщество"
                     >
@@ -334,14 +400,13 @@ export function AppSidebar() {
               ))}
 
               {/* Кнопка "Вступить по коду" */}
-              <SidebarMenuItem>
+              <SidebarMenuItem className={cn(!isExpanded && "flex justify-center w-full")}>
                 <SidebarMenuButton
                   onClick={() => setIsJoinOpen(true)}
-                  className={cn("text-neutral-400 hover:text-white", !open && "justify-center px-0")}
                   title="Вступить по коду"
                 >
-                  <KeyRound className="h-4 w-4 shrink-0" />
-                  {open && <span>Вступить по коду</span>}
+                  <KeyRound className={cn(isExpanded ? "h-4 w-4" : "h-6 w-6", "shrink-0")} />
+                  {isExpanded && <span>Вступить по коду</span>}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -350,17 +415,25 @@ export function AppSidebar() {
       </SidebarContent>
 
       {/* Самый нижний уровень */}
-      <SidebarFooter className="border-t border-[#262626]/60 p-2 mt-auto flex flex-col gap-2 transition-all duration-300">
+      <SidebarFooter className={cn(
+        "border-t border-[#262626]/60 mt-auto flex flex-col transition-all duration-300",
+        isExpanded ? "p-3 gap-2" : "p-3 pb-4 gap-4 items-center"
+      )}>
         {/* Профиль пользователя или кнопка авторизации */}
         {isAuthenticated && user ? (
           <div
             className={cn(
-              "flex items-center justify-between rounded-2xl bg-[#191919] border border-[#262626] p-2 transition-all",
-              open ? "w-full" : "w-[50px] h-[50px] justify-center p-0 mx-auto"
+              "flex items-center rounded-2xl bg-[#191919] border border-[#262626] transition-all",
+              isExpanded
+                ? "w-full justify-between p-2"
+                : "w-12 h-12 aspect-square justify-center p-0 mx-auto shadow-xs"
             )}
           >
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#262626] text-[#FDE047] font-bold border border-[#333] overflow-hidden">
+            <div className={cn("flex items-center min-w-0", isExpanded ? "gap-2.5" : "justify-center w-full h-full")}>
+              <div className={cn(
+                "flex shrink-0 items-center justify-center rounded-2xl bg-[#262626] text-[#FDE047] font-bold border border-[#333] overflow-hidden",
+                isExpanded ? "h-9 w-9 text-sm" : "w-12 h-12 text-base"
+              )}>
                 {user.avatar_url ? (
                   <img
                     src={user.avatar_url}
@@ -371,7 +444,7 @@ export function AppSidebar() {
                   (user.display_name || "U")[0].toUpperCase()
                 )}
               </div>
-              {open && (
+              {isExpanded && (
                 <div className="min-w-0 flex-1">
                   <div className="text-xs font-bold text-white truncate">
                     {user.display_name || "Слушатель"}
@@ -382,7 +455,7 @@ export function AppSidebar() {
                 </div>
               )}
             </div>
-            {open && (
+            {isExpanded && (
               <button
                 type="button"
                 onClick={logout}
@@ -398,15 +471,16 @@ export function AppSidebar() {
           <Link
             to="/register"
             title="Войти или зарегистрироваться"
+            onClick={() => isMobile && setOpenMobile(false)}
             className={cn(
-              "rounded-2xl bg-[#242016] border border-[#4a3f24] text-[#FDE047] flex items-center hover:bg-[#2d281c] transition-all cursor-pointer group",
-              open
+              "rounded-2xl bg-[#242016] border border-[#4a3f24] text-[#FDE047] flex items-center hover:bg-[#2d281c] transition-all cursor-pointer group shadow-xs",
+              isExpanded
                 ? "w-full h-11 px-3 gap-2.5 justify-start text-xs font-bold"
-                : "w-[50px] h-[50px] p-0 justify-center mx-auto"
+                : "w-12 h-12 aspect-square p-0 justify-center mx-auto"
             )}
           >
-            <UserIcon className="h-4 w-4 shrink-0" />
-            {open && <span>Войти / Регистрация</span>}
+            <UserIcon className={cn(isExpanded ? "h-4 w-4" : "h-6 w-6", "shrink-0")} />
+            {isExpanded && <span>Войти / Регистрация</span>}
           </Link>
         )}
 
@@ -415,19 +489,22 @@ export function AppSidebar() {
           onClick={() => setIsInviteOpen(true)}
           title="Музыка лучше вместе — Пригласи друзей"
           className={cn(
-            "rounded-2xl bg-[#221e16] border border-[#3f3520] flex items-center text-left hover:bg-[#2a251b] transition-all duration-300 ease-in-out cursor-pointer group overflow-hidden",
-            open
+            "rounded-2xl bg-[#221e16] border border-[#3f3520] flex items-center text-left hover:bg-[#2a251b] transition-all duration-300 ease-in-out cursor-pointer group overflow-hidden shadow-xs",
+            isExpanded
               ? "w-full h-[70px] p-2 gap-3"
-              : "w-[50px] h-[50px] p-0 gap-0 justify-center mx-auto"
+              : "w-12 h-12 aspect-square p-0 gap-0 justify-center mx-auto"
           )}
         >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#382f1b] text-[#FDE047]">
-            <Headphones className="h-5 w-5" />
+          <div className={cn(
+            "flex shrink-0 items-center justify-center rounded-2xl bg-[#382f1b] text-[#FDE047]",
+            isExpanded ? "h-10 w-10" : "w-12 h-12"
+          )}>
+            <Headphones className={cn(isExpanded ? "h-5 w-5" : "h-6 w-6")} />
           </div>
           <div
             className={cn(
               "transition-all duration-300 ease-in-out overflow-hidden shrink-0",
-              open ? "w-[160px] opacity-100" : "w-0 opacity-0 pointer-events-none"
+              isExpanded ? "w-[160px] opacity-100" : "w-0 opacity-0 pointer-events-none"
             )}
           >
             <div className="w-[160px]">

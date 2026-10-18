@@ -128,7 +128,7 @@ export function Popup({
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Например ПрогИнж-4 или ПИ"
-                className="w-full rounded-lg border border-neutral-700 bg-[#262626] px-3.5 py-2.5 text-sm text-white placeholder-neutral-500 outline-none transition focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400"
+                className="w-full rounded-lg border border-neutral-700 bg-[#262626] px-3.5 py-2.5 text-base sm:text-sm text-white placeholder-neutral-500 outline-none transition focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400"
                 required
                 autoFocus
               />
@@ -136,7 +136,7 @@ export function Popup({
 
             <button
               type="submit"
-              className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-neutral-200 active:scale-[0.99]"
+              className="mt-2 w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-neutral-200 active:scale-[0.99]"
             >
               <img src="/icons/plus.svg" alt="+" className="h-4 w-4" />
               <span>Создать сообщество</span>
@@ -189,7 +189,7 @@ export function Popup({
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Например, RITM2026"
-                className="w-full rounded-lg border border-neutral-700 bg-[#262626] px-3.5 py-2.5 text-sm text-white placeholder-neutral-500 outline-none transition focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400"
+                className="w-full rounded-lg border border-neutral-700 bg-[#262626] px-3.5 py-2.5 text-base sm:text-sm text-white placeholder-neutral-500 outline-none transition focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400"
                 required
                 autoFocus
               />
@@ -197,7 +197,7 @@ export function Popup({
 
             <button
               type="submit"
-              className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-neutral-200 active:scale-[0.99]"
+              className="mt-2 w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-neutral-200 active:scale-[0.99]"
             >
               <img src="/icons/arrow-right.svg" alt="->" className="h-4 w-4" />
               <span>Вступить в сообщество</span>
@@ -261,7 +261,7 @@ export function Popup({
               <label className="block text-xs font-semibold text-neutral-300 mb-1.5">
                 Адрес сервера (для телефона — IP ноутбука)
               </label>
-              <div className="rounded-xl bg-[#221e16] border border-[#3f3520] px-3.5 py-2.5 text-sm text-neutral-300 font-mono">
+              <div className="rounded-xl bg-[#221e16] border border-[#3f3520] px-3.5 py-2.5 text-sm text-neutral-300 font-mono break-all">
                 {effectiveServerAddress}
               </div>
             </div>
