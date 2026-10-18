@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { audioService } from "@/lib/audioService";
+import { showTrackAddedToast, showTrackAddErrorToast } from "@/lib/notifications";
 
 const SUGGESTED_QUERIES = [
   "Bustin Loose",
@@ -56,7 +57,6 @@ export function SearchBar({
   const [communities, setCommunities] = useState([]);
   const [isLoadingCommunities, setIsLoadingCommunities] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const [toast, setToast] = useState(null);
 
   const containerRef = useRef(null);
   const inputRef = useRef(null);
@@ -64,11 +64,6 @@ export function SearchBar({
   const debounceTimerRef = useRef(null);
 
   const query = value !== undefined ? value : internalValue;
-
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 3000);
-  };
 
   // Sync playback state with audioService
   useEffect(() => {
@@ -264,15 +259,14 @@ export function SearchBar({
         body: JSON.stringify({ key, library_key: key }),
       });
       if (res.ok) {
-        showToast(`✓ «${selectedTrack.title}» добавлен в «${community.name}»`);
+        showTrackAddedToast(community.name);
         setIsAddModalOpen(false);
         window.dispatchEvent(new Event("communities_updated"));
       } else {
-        const err = await res.json().catch(() => ({}));
-        showToast(err.detail || "Не удалось добавить трек");
+        showTrackAddErrorToast(community.name);
       }
     } catch {
-      showToast("Ошибка при добавлении трека");
+      showTrackAddErrorToast(community.name);
     } finally {
       setIsAdding(false);
     }
@@ -282,12 +276,6 @@ export function SearchBar({
 
   return (
     <div ref={containerRef} className="relative w-full">
-      {/* Toast notification */}
-      {toast && (
-        <div className="fixed top-5 right-5 z-[250] bg-[#1a1a1a] border border-[#3e4c36] text-white text-xs sm:text-sm font-semibold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
-          <span>{toast}</span>
-        </div>
-      )}
 
       {/* Поисковая строка */}
       <div

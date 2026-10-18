@@ -9,6 +9,7 @@ import { PartyPage } from "./pages/PartyPage.jsx";
 import Layout from "./components/Layout.jsx";
 import { AuthProvider } from "./lib/auth.jsx";
 import { useAuth } from "@/lib/auth";
+import { Toaster } from "react-hot-toast";
 
 // Контекст для предоставления треков библиотеки по всему приложению
 export const LibraryContext = createContext({
@@ -152,6 +153,17 @@ export default function App() {
   return (
     <AuthProvider>
       <AppContent />
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          duration: 5000,
+        }}
+        containerStyle={{
+          bottom: 24,
+          right: 24,
+          zIndex: 99999,
+        }}
+      />
     </AuthProvider>
   );
 }

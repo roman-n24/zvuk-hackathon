@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { audioService } from "@/lib/audioService";
+import { showTrackAddedToast, showTrackAddErrorToast } from "@/lib/notifications";
 
 export function LibraryPage() {
   const [tracks, setTracks] = useState([]);
@@ -31,7 +32,6 @@ export function LibraryPage() {
   const [communities, setCommunities] = useState([]);
   const [targetTrack, setTargetTrack] = useState(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [toast, setToast] = useState(null);
 
   // Загрузка треков фонотеки из базы данных через FastAPI
   const fetchLibrary = useCallback(() => {
@@ -103,11 +103,6 @@ export function LibraryPage() {
     };
   }, [fetchLibrary]);
 
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 3000);
-  };
-
   const handlePlayToggle = (track) => {
     if (playingKey === track.key) {
       audioService.pause();
@@ -147,14 +142,13 @@ export function LibraryPage() {
       });
 
       if (res.ok) {
-        showToast(`✓ «${targetTrack.title}» добавлен в комнату «${roomName}»`);
+        showTrackAddedToast(roomName);
         setIsAddOpen(false);
       } else {
-        const data = await res.json();
-        showToast(`⚠️ ${data.detail || "Не удалось добавить трек"}`);
+        showTrackAddErrorToast(roomName);
       }
     } catch {
-      showToast("⚠️ Ошибка соединения с сервером");
+      showTrackAddErrorToast(roomName);
     }
   };
 
@@ -170,13 +164,6 @@ export function LibraryPage() {
 
   return (
     <div className="w-full text-white space-y-6 pb-24">
-      {/* Тост */}
-      {toast && (
-        <div className="fixed top-5 right-5 z-[200] bg-[#1a1a1a] border border-[#2e402d] text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2">
-          <span>{toast}</span>
-        </div>
-      )}
-
       {/* Поиск и фильтры по жанрам */}
       <div className="space-y-3 sm:space-y-4">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">

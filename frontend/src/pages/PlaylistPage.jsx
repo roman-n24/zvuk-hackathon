@@ -19,6 +19,7 @@ import { audioService } from "@/lib/audioService";
 import { EqualizerModal } from "@/components/EqualizerModal";
 import { QRCode } from "@/components/QRCode.jsx";
 import { useSidebar } from "@/components/ui/sidebar";
+import { showTrackAddedToast, showTrackAddErrorToast } from "@/lib/notifications";
 
 // ─── Заготовки под будущий бэкенд (когда появится авторизация и API) ────────
 const DEFAULT_USER = {
@@ -1072,6 +1073,8 @@ export function PlaylistPage() {
     if (!t) return;
     const libraryKey = t.key || t.id;
 
+    const playlistName = playlist?.name || "плейлист";
+
     if (currentRoomId) {
       try {
         const token = localStorage.getItem("token");
@@ -1086,28 +1089,29 @@ export function PlaylistPage() {
         if (res.ok) {
           const resData = await res.json();
           fetchCommunityData(currentRoomId);
+          showTrackAddedToast(playlistName);
           if (resData.status === "approved") {
-            showToast(`✓ «${t.title}» добавлен в плейлист`);
             setActiveTab("queue");
           } else {
-            showToast(`«${t.title}» отправлен на модерацию`);
             setActiveTab("moderation");
           }
           setModalAdd(false);
           return;
         } else {
-          const err = await res.json();
-          showToast(`⚠️ ${err.detail || "Не удалось добавить трек"}`);
+          showTrackAddErrorToast(playlistName);
           return;
         }
-      } catch {}
+      } catch {
+        showTrackAddErrorToast(playlistName);
+        return;
+      }
     }
 
     const newId = nextId; setNextId((n) => n + 1);
     const newTrack = { id: newId, ...t, library_key: libraryKey, proposer: user.username, votes: 0, userVote: 0, prevRank: tracks.length + 1 };
     setModQueue((prev) => [...prev, newTrack]);
     addHistory("propose", newTrack, 0);
-    showToast(`«${t.title}» отправлен на модерацию`);
+    showTrackAddedToast(playlistName);
     setActiveTab("moderation");
     setModalAdd(false);
   };
