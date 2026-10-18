@@ -1,0 +1,577 @@
+import { useState, useEffect, useCallback } from "react";
+import {
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarSeparator,
+  SidebarTrigger,
+  useSidebar,
+} from "@/components/ui/sidebar";
+import {
+  Home,
+  ListMusic,
+  Library,
+  Heart,
+  Plus,
+  Trash2,
+  Users,
+  KeyRound,
+  Headphones,
+  ArrowRight,
+  LogOut,
+  User as UserIcon,
+  Flame,
+  X,
+} from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { Popup } from "./Popup";
+import { useAuth } from "@/lib/auth";
+
+const items = [
+  { title: "Главная", url: "/", icon: Home },
+  { title: "Плейлист", url: "/playlist", icon: ListMusic },
+  { title: "Вечеринка", url: "/party", icon: Flame, badge: "LIVE" },
+  { title: "Медиатека", url: "/library", icon: Library },
+  { title: "Избранное", url: "/favorites", icon: Heart },
+];
+
+export function AppSidebar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { open, isMobile, setOpenMobile } = useSidebar();
+  const isExpanded = isMobile || open;
+  const { user, isAuthenticated, logout } = useAuth();
+  const [communities, setCommunities] = useState([]);
+  const [sharingBaseUrl, setSharingBaseUrl] = useState("");
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isJoinOpen, setIsJoinOpen] = useState(false);
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
+
+  // Загрузка реальных сообществ из бэкенда
+  const fetchCommunities = useCallback(() => {
+    const token = localStorage.getItem("token");
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+    fetch("/api/me/communities", { headers })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          const all = [...(data.created || []), ...(data.joined || [])];
+          if (all.length > 0) {
+            setCommunities(
+              all.map((c) => ({
+                id: c.id,
+                name: c.name,
+                invite_code: c.invite_code,
+                url: `/community/${c.id}`,
+              }))
+            );
+          }
+        }
+        // Запрос в /api/bootstrap для получения LAN-адреса и дефолтных сообществ
+        return fetch("/api/bootstrap", { headers })
+          .then((res) => (res.ok ? res.json() : null))
+          .then((bData) => {
+            if (bData?.sharing?.base_url) {
+              setSharingBaseUrl(bData.sharing.base_url);
+            }
+            if (bData?.communities?.length > 0) {
+              setCommunities((prev) =>
+                prev.length > 0
+                  ? prev
+                  : bData.communities.map((c) => ({
+                      id: c.id,
+                      name: c.name,
+                      invite_code: c.invite_code,
+                      url: `/community/${c.id}`,
+                    }))
+              );
+            }
+          });
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetchCommunities();
+    window.addEventListener("communities_updated", fetchCommunities);
+    return () => {
+      window.removeEventListener("communities_updated", fetchCommunities);
+    };
+  }, [fetchCommunities, user]);
+
+  const handleCreateCommunity = async (communityName) => {
+    try {
+      const token = localStorage.getItem("token");
+      const headers = {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      };
+      const res = await fetch("/api/communities", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ name: communityName }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.access_token) {
+          localStorage.setItem("token", data.access_token);
+        }
+        window.dispatchEvent(new Event("communities_updated"));
+        navigate(`/community/${data.id}`);
+        return;
+      }
+    } catch {}
+
+    navigate("/playlist");
+  };
+
+  const handleRemoveCommunity = async (idToRemove) => {
+    setCommunities((prev) => prev.filter((item) => item.id !== idToRemove));
+
+    try {
+      const token = localStorage.getItem("token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      await fetch(`/api/communities/${idToRemove}`, {
+        method: "DELETE",
+        headers,
+      });
+    } catch {}
+
+    window.dispatchEvent(new Event("communities_updated"));
+
+    if (window.location.pathname === `/community/${idToRemove}`) {
+      navigate("/playlist");
+    }
+  };
+
+  const handleJoinByCode = async (inviteCode) => {
+    try {
+      const token = localStorage.getItem("token");
+      const headers = {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      };
+      const res = await fetch("/api/join", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ code: inviteCode.trim().toUpperCase() }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.access_token) {
+          localStorage.setItem("token", data.access_token);
+        }
+        window.dispatchEvent(new Event("communities_updated"));
+        navigate(`/community/${data.id}`);
+        return;
+      }
+    } catch {}
+    navigate("/playlist");
+  };
+
+  return (
+    <Sidebar>
+      {/* Самый верхний уровень: Логотип сайта и кнопка сворачивания */}
+      <SidebarHeader
+        className={cn(
+          "border-b border-[#262626]/60 p-3 transition-all",
+          isExpanded
+            ? "flex-row items-center justify-between"
+            : "flex-col items-center justify-center gap-3 px-2 py-3"
+        )}
+        style={{
+          display: "flex",
+          justifyContent: isExpanded ? "space-between" : "center",
+          alignItems: "center",
+        }}
+      >
+        {isMobile ? (
+          <div className="flex items-center justify-between w-full px-1">
+            <Link
+              to="/"
+              onClick={() => setOpenMobile(false)}
+              className="flex items-center gap-3 px-1 py-1 rounded-xl transition-colors hover:bg-neutral-800/50 select-none min-w-0"
+            >
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FDE047] shadow-xs">
+                <svg
+                  viewBox="0 0 36 36"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                >
+                  <rect x="7.5" y="13" width="3" height="10" rx="1.5" fill="#171717" />
+                  <rect x="12.5" y="9" width="3" height="18" rx="1.5" fill="#171717" />
+                  <rect x="17.5" y="6" width="3" height="24" rx="1.5" fill="#171717" />
+                  <rect x="22.5" y="9" width="3" height="18" rx="1.5" fill="#171717" />
+                  <rect x="27.5" y="13" width="3" height="10" rx="1.5" fill="#171717" />
+                </svg>
+              </div>
+              <span className="text-2xl font-bold tracking-tight text-white flex items-baseline truncate">
+                ритм<span className="text-[#FDE047] text-2xl font-black">.</span>
+              </span>
+            </Link>
+            <button
+              type="button"
+              onClick={() => setOpenMobile(false)}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-neutral-400 hover:bg-[#262626] hover:text-white transition-colors cursor-pointer"
+              title="Закрыть меню"
+              aria-label="Закрыть меню"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        ) : open ? (
+          <>
+            <Link
+              to="/"
+              className="flex items-center gap-3 px-2 py-1 rounded-xl transition-colors hover:bg-neutral-800/50 select-none min-w-0"
+            >
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FDE047] shadow-xs">
+                <svg
+                  viewBox="0 0 36 36"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                >
+                  <rect x="7.5" y="13" width="3" height="10" rx="1.5" fill="#171717" />
+                  <rect x="12.5" y="9" width="3" height="18" rx="1.5" fill="#171717" />
+                  <rect x="17.5" y="6" width="3" height="24" rx="1.5" fill="#171717" />
+                  <rect x="22.5" y="9" width="3" height="18" rx="1.5" fill="#171717" />
+                  <rect x="27.5" y="13" width="3" height="10" rx="1.5" fill="#171717" />
+                </svg>
+              </div>
+              <span className="text-2xl font-bold tracking-tight text-white flex items-baseline truncate">
+                ритм<span className="text-[#FDE047] text-2xl font-black">.</span>
+              </span>
+            </Link>
+            <SidebarTrigger />
+          </>
+        ) : (
+          <>
+            <SidebarTrigger />
+            <Link
+              to="/"
+              title="ритм."
+              className="flex items-center justify-center rounded-2xl transition-colors hover:bg-neutral-800/50 select-none p-0.5"
+            >
+              <div className="flex h-12 w-12 shrink-0 aspect-square items-center justify-center rounded-2xl bg-[#FDE047] shadow-xs">
+                <svg
+                  viewBox="0 0 36 36"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-7 w-7"
+                >
+                  <rect x="7.5" y="13" width="3" height="10" rx="1.5" fill="#171717" />
+                  <rect x="12.5" y="9" width="3" height="18" rx="1.5" fill="#171717" />
+                  <rect x="17.5" y="6" width="3" height="24" rx="1.5" fill="#171717" />
+                  <rect x="22.5" y="9" width="3" height="18" rx="1.5" fill="#171717" />
+                  <rect x="27.5" y="13" width="3" height="10" rx="1.5" fill="#171717" />
+                </svg>
+              </div>
+            </Link>
+          </>
+        )}
+      </SidebarHeader>
+
+      <SidebarContent>
+        <SidebarGroup>
+          {isExpanded && <SidebarGroupLabel>Музыка</SidebarGroupLabel>}
+          <SidebarGroupContent>
+            <SidebarMenu className={cn(!isExpanded && "items-center")}>
+              {items.map((item) => {
+                const isActive = location.pathname === item.url;
+                return (
+                  <SidebarMenuItem key={item.title} className={cn(!isExpanded && "flex justify-center w-full")}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                    >
+                      <Link
+                        to={item.url}
+                        title={item.title}
+                        onClick={() => isMobile && setOpenMobile(false)}
+                        className={cn(
+                          "flex items-center transition-colors",
+                          isExpanded ? "justify-between w-full" : "justify-center"
+                        )}
+                      >
+                        {isExpanded ? (
+                          <>
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <item.icon className={cn("h-5 w-5 shrink-0", item.badge ? "text-yellow-400" : "")} />
+                              <span className="truncate">{item.title}</span>
+                            </div>
+                            {item.badge && (
+                              <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-yellow-400/20 text-yellow-300 border border-yellow-400/40 flex items-center gap-1 animate-pulse shrink-0">
+                                <span className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
+                                {item.badge}
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          <item.icon className={cn("h-6 w-6 shrink-0", item.badge ? "text-yellow-400" : "")} />
+                        )}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Разделительная черта */}
+        <SidebarSeparator />
+
+        {/* Твои сообщества */}
+        <SidebarGroup>
+          {isExpanded ? (
+            <div className="flex items-center justify-between pr-2 mb-1">
+              <SidebarGroupLabel>Твои сообщества</SidebarGroupLabel>
+              <button
+                type="button"
+                onClick={() => setIsCreateOpen(true)}
+                className="flex h-5 w-5 items-center justify-center rounded text-neutral-400 hover:bg-[#262626] hover:text-white transition-colors cursor-pointer"
+                title="Добавить сообщество"
+                aria-label="Добавить сообщество"
+              >
+                <Plus className="h-4 w-4" />
+                <span className="sr-only">+</span>
+              </button>
+            </div>
+          ) : (
+            <div className="flex justify-center mb-4 w-full">
+              <button
+                type="button"
+                onClick={() => setIsCreateOpen(true)}
+                className="flex h-12 w-12 aspect-square items-center justify-center rounded-2xl bg-[#1b1b1b] text-neutral-400 hover:bg-[#262626] hover:text-white transition-colors cursor-pointer shadow-xs border-0"
+                title="Добавить сообщество"
+                aria-label="Добавить сообщество"
+              >
+                <Plus className="h-6 w-6" />
+                <span className="sr-only">+</span>
+              </button>
+            </div>
+          )}
+          <SidebarGroupContent>
+            <SidebarMenu className={cn(!isExpanded && "items-center")}>
+              {communities.map((community) => {
+                const isCommunityActive =
+                  location.pathname === community.url ||
+                  location.pathname.startsWith(`${community.url}/`);
+                return (
+                  <SidebarMenuItem key={community.id} className={cn("group relative", !isExpanded && "flex justify-center w-full")}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isCommunityActive}
+                      className={cn(isExpanded && "pr-8", "border-0")}
+                    >
+                      <Link
+                        to={community.url}
+                        title={community.name}
+                        onClick={() => isMobile && setOpenMobile(false)}
+                        className={cn(!isExpanded && "justify-center", "border-0")}
+                      >
+                        <Users className={cn(isExpanded ? "h-4 w-4" : "h-6 w-6", "shrink-0")} />
+                        {isExpanded && <span className="truncate">{community.name}</span>}
+                      </Link>
+                    </SidebarMenuButton>
+                    {isExpanded && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleRemoveCommunity(community.id);
+                        }}
+                        className={cn(
+                          "absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded text-neutral-400 hover:bg-[#333] hover:text-red-400 transition-colors cursor-pointer",
+                          isMobile ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                        )}
+                        title="Удалить сообщество"
+                        aria-label="Удалить сообщество"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        <span className="sr-only">Удалить</span>
+                      </button>
+                    )}
+                  </SidebarMenuItem>
+                );
+              })}
+
+              {/* Кнопка "Вступить по коду" */}
+              <SidebarMenuItem className={cn(!isExpanded && "flex justify-center w-full")}>
+                <SidebarMenuButton
+                  onClick={() => setIsJoinOpen(true)}
+                  title="Вступить по коду"
+                  className="border-0"
+                >
+                  <KeyRound className={cn(isExpanded ? "h-4 w-4" : "h-6 w-6", "shrink-0")} />
+                  {isExpanded && <span>Вступить по коду</span>}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      {/* Самый нижний уровень */}
+      <SidebarFooter className={cn(
+        "sticky bottom-0 z-20 bg-[#171717] shrink-0 border-t border-[#262626]/60 mt-auto flex flex-col transition-all duration-300",
+        isExpanded ? "p-3 gap-2" : "p-3 pb-4 gap-4 items-center"
+      )}>
+        {/* Профиль пользователя или кнопка авторизации */}
+        {isAuthenticated && user ? (
+          <div
+            className={cn(
+              "flex items-center rounded-2xl bg-[#191919] border border-[#262626] transition-all",
+              isExpanded
+                ? "w-full justify-between p-2"
+                : "w-12 h-12 aspect-square justify-center p-0 mx-auto shadow-xs"
+            )}
+          >
+            <div className={cn("flex items-center min-w-0", isExpanded ? "gap-2.5" : "justify-center w-full h-full")}>
+              <div className={cn(
+                "flex shrink-0 items-center justify-center rounded-2xl bg-[#262626] text-[#FDE047] font-bold border border-[#333] overflow-hidden",
+                isExpanded ? "h-9 w-9 text-sm" : "w-12 h-12 text-base"
+              )}>
+                {user.avatar_url ? (
+                  <img
+                    src={user.avatar_url}
+                    alt={user.display_name || "Аватар"}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  (user.display_name || "U")[0].toUpperCase()
+                )}
+              </div>
+              {isExpanded && (
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-bold text-white truncate">
+                    {user.display_name || "Слушатель"}
+                  </div>
+                  <div className="text-[11px] text-neutral-400 truncate">
+                    {user.email || "Гость"}
+                  </div>
+                </div>
+              )}
+            </div>
+            {isExpanded && (
+              <button
+                type="button"
+                onClick={logout}
+                title="Выйти из аккаунта"
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-neutral-400 hover:text-red-400 hover:bg-neutral-800 transition-colors cursor-pointer"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="sr-only">Выйти</span>
+              </button>
+            )}
+          </div>
+        ) : (
+          <Link
+            to="/register"
+            title="Войти или зарегистрироваться"
+            onClick={() => isMobile && setOpenMobile(false)}
+            className={cn(
+              "rounded-2xl bg-[#242016] border border-[#4a3f24] text-[#FDE047] flex items-center hover:bg-[#2d281c] transition-all cursor-pointer group shadow-xs",
+              isExpanded
+                ? "w-full h-11 px-3 gap-2.5 justify-start text-xs font-bold"
+                : "w-12 h-12 aspect-square p-0 justify-center mx-auto"
+            )}
+          >
+            <UserIcon className={cn(isExpanded ? "h-4 w-4" : "h-6 w-6", "shrink-0")} />
+            {isExpanded && <span>Войти / Регистрация</span>}
+          </Link>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setIsInviteOpen(true)}
+          title="Музыка лучше вместе — Пригласи друзей"
+          className={cn(
+            "rounded-2xl bg-[#221e16] border border-[#3f3520] flex items-center text-left hover:bg-[#2a251b] transition-all duration-300 ease-in-out cursor-pointer group overflow-hidden shadow-xs",
+            isExpanded
+              ? "w-full h-[70px] p-2 gap-3"
+              : "w-12 h-12 aspect-square p-0 gap-0 justify-center mx-auto"
+          )}
+        >
+          <div className={cn(
+            "flex shrink-0 items-center justify-center rounded-2xl bg-[#382f1b] text-[#FDE047]",
+            isExpanded ? "h-10 w-10" : "w-12 h-12"
+          )}>
+            <Headphones className={cn(isExpanded ? "h-5 w-5" : "h-6 w-6")} />
+          </div>
+          <div
+            className={cn(
+              "transition-all duration-300 ease-in-out overflow-hidden shrink-0",
+              isExpanded ? "w-[160px] opacity-100" : "w-0 opacity-0 pointer-events-none"
+            )}
+          >
+            <div className="w-[160px]">
+              <div className="text-sm font-bold text-white leading-tight truncate">
+                Музыка лучше вместе
+              </div>
+              <div className="text-xs text-neutral-400 leading-snug mt-0.5 line-clamp-2">
+                Пригласи друзей и выбирайте, что слушать
+              </div>
+            </div>
+          </div>
+        </button>
+      </SidebarFooter>
+
+      {/* Единый компонент всплывающих окон (popup) */}
+      <Popup
+        type="create"
+        open={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        onCreateCommunity={handleCreateCommunity}
+      />
+
+      <Popup
+        type="join"
+        open={isJoinOpen}
+        onOpenChange={setIsJoinOpen}
+        onJoinByCode={handleJoinByCode}
+      />
+
+      <Popup
+        type="invite"
+        open={isInviteOpen}
+        onOpenChange={setIsInviteOpen}
+        communityCode={
+          (communities.find((c) =>
+            window.location.pathname.startsWith(`/community/${c.id}`)
+          ) || communities[0])?.invite_code || "ZVUK26"
+        }
+        serverAddress={
+          typeof window !== "undefined" &&
+          window.location.hostname !== "localhost" &&
+          window.location.hostname !== "127.0.0.1"
+            ? window.location.origin
+            : sharingBaseUrl || (typeof window !== "undefined" ? window.location.origin : "")
+        }
+        inviteLink={`${
+          typeof window !== "undefined" &&
+          window.location.hostname !== "localhost" &&
+          window.location.hostname !== "127.0.0.1"
+            ? window.location.origin
+            : sharingBaseUrl || (typeof window !== "undefined" ? window.location.origin : "")
+        }/?invite=${
+          (communities.find((c) =>
+            window.location.pathname.startsWith(`/community/${c.id}`)
+          ) || communities[0])?.invite_code || "ZVUK26"
+        }`}
+      />
+    </Sidebar>
+  );
+}
