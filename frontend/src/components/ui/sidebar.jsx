@@ -196,10 +196,15 @@ export function SidebarContent({ className, ...props }) {
   return (
     <div
       className={cn(
-        "flex flex-1 min-h-0 flex-col gap-2 overflow-y-auto overflow-x-hidden p-4",
-        !open && "p-2 items-center gap-6",
+        "flex flex-1 min-h-0 flex-col gap-2 overflow-y-auto overflow-x-hidden p-4 scrollbar-none",
+        !open && "p-2 items-center gap-3",
         className
       )}
+      style={{
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
+        ...(props.style || {}),
+      }}
       {...props}
     />
   );
@@ -241,7 +246,7 @@ export function SidebarMenu({ className, ...props }) {
     <ul
       className={cn(
         "flex w-full min-w-0 flex-col gap-1 list-none p-0 m-0",
-        !open && "gap-4 items-center",
+        !open && "gap-2 items-center",
         className
       )}
       {...props}
@@ -262,7 +267,7 @@ export function SidebarMenuButton({
 }) {
   const { open } = useSidebar();
   const baseClasses = cn(
-    "flex items-center transition-all duration-200 cursor-pointer [&>svg]:shrink-0",
+    "flex items-center transition-colors duration-150 cursor-pointer [&>svg]:shrink-0 border-0",
     open
       ? cn(
           "w-full gap-3 rounded-lg px-3 py-2 text-sm font-medium text-neutral-300 hover:bg-[#262626] hover:text-white [&>svg]:h-5 [&>svg]:w-5",
@@ -272,7 +277,7 @@ export function SidebarMenuButton({
           "w-12 h-12 aspect-square justify-center p-0 rounded-2xl mx-auto [&>svg]:h-6 [&>svg]:w-6 shadow-xs",
           isActive
             ? "bg-[#262419] border border-[#FDE047]/50 text-[#FDE047] font-semibold"
-            : "bg-[#1b1b1b] border border-[#282828] text-neutral-400 hover:text-white hover:bg-[#262626] hover:border-neutral-600"
+            : "bg-[#1b1b1b] text-neutral-400 hover:text-white hover:bg-[#262626]"
         ),
     className
   );

@@ -353,7 +353,7 @@ export function AppSidebar() {
               <button
                 type="button"
                 onClick={() => setIsCreateOpen(true)}
-                className="flex h-12 w-12 aspect-square items-center justify-center rounded-2xl bg-[#1b1b1b] border border-[#282828] text-neutral-400 hover:bg-[#262626] hover:text-white hover:border-neutral-600 transition-all cursor-pointer shadow-xs"
+                className="flex h-12 w-12 aspect-square items-center justify-center rounded-2xl bg-[#1b1b1b] text-neutral-400 hover:bg-[#262626] hover:text-white transition-colors cursor-pointer shadow-xs border-0"
                 title="Добавить сообщество"
                 aria-label="Добавить сообщество"
               >
@@ -364,46 +364,56 @@ export function AppSidebar() {
           )}
           <SidebarGroupContent>
             <SidebarMenu className={cn(!isExpanded && "items-center")}>
-              {communities.map((community) => (
-                <SidebarMenuItem key={community.id} className={cn("group relative", !isExpanded && "flex justify-center w-full")}>
-                  <SidebarMenuButton asChild className={cn(isExpanded && "pr-8")}>
-                    <Link
-                      to={community.url}
-                      title={community.name}
-                      onClick={() => isMobile && setOpenMobile(false)}
-                      className={cn(!isExpanded && "justify-center")}
+              {communities.map((community) => {
+                const isCommunityActive =
+                  location.pathname === community.url ||
+                  location.pathname.startsWith(`${community.url}/`);
+                return (
+                  <SidebarMenuItem key={community.id} className={cn("group relative", !isExpanded && "flex justify-center w-full")}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isCommunityActive}
+                      className={cn(isExpanded && "pr-8", "border-0")}
                     >
-                      <Users className={cn(isExpanded ? "h-4 w-4" : "h-6 w-6", "shrink-0")} />
-                      {isExpanded && <span className="truncate">{community.name}</span>}
-                    </Link>
-                  </SidebarMenuButton>
-                  {isExpanded && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleRemoveCommunity(community.id);
-                      }}
-                      className={cn(
-                        "absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded text-neutral-400 hover:bg-[#333] hover:text-red-400 transition-colors cursor-pointer",
-                        isMobile ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                      )}
-                      title="Удалить сообщество"
-                      aria-label="Удалить сообщество"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      <span className="sr-only">Удалить</span>
-                    </button>
-                  )}
-                </SidebarMenuItem>
-              ))}
+                      <Link
+                        to={community.url}
+                        title={community.name}
+                        onClick={() => isMobile && setOpenMobile(false)}
+                        className={cn(!isExpanded && "justify-center", "border-0")}
+                      >
+                        <Users className={cn(isExpanded ? "h-4 w-4" : "h-6 w-6", "shrink-0")} />
+                        {isExpanded && <span className="truncate">{community.name}</span>}
+                      </Link>
+                    </SidebarMenuButton>
+                    {isExpanded && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleRemoveCommunity(community.id);
+                        }}
+                        className={cn(
+                          "absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded text-neutral-400 hover:bg-[#333] hover:text-red-400 transition-colors cursor-pointer",
+                          isMobile ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                        )}
+                        title="Удалить сообщество"
+                        aria-label="Удалить сообщество"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        <span className="sr-only">Удалить</span>
+                      </button>
+                    )}
+                  </SidebarMenuItem>
+                );
+              })}
 
               {/* Кнопка "Вступить по коду" */}
               <SidebarMenuItem className={cn(!isExpanded && "flex justify-center w-full")}>
                 <SidebarMenuButton
                   onClick={() => setIsJoinOpen(true)}
                   title="Вступить по коду"
+                  className="border-0"
                 >
                   <KeyRound className={cn(isExpanded ? "h-4 w-4" : "h-6 w-6", "shrink-0")} />
                   {isExpanded && <span>Вступить по коду</span>}

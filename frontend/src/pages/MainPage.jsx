@@ -242,7 +242,7 @@ export function MainPage() {
 
   return (
     
-    <div className="w-full text-white space-y-14 sm:space-y-20 md:space-y-24 pb-12 sm:pb-16">
+    <div className="w-full text-white space-y-14 sm:space-y-20 md:space-y-24 pb-5">
       {/* 1. ГЛАВНЫЙ ЭКРАН (HERO SECTION) */}
       <section className="relative pt-2 sm:pt-6 pb-6 sm:pb-12 overflow-hidden">
         {/* Фоновое мягкое неоновое свечение */}

@@ -136,7 +136,7 @@ function LayoutInner({ children }) {
         </header>
 
         {/* ─── ОСНОВНОЕ СОДЕРЖИМОЕ СТРАНИЦЫ ─── */}
-        <main className="flex-1 w-full px-3.5 sm:px-6 md:px-8 pt-2 sm:pt-4 pb-36 md:pb-28 min-w-0 transition-all duration-300">
+        <main className="flex-1 w-full px-3.5 sm:px-6 md:px-8 pt-2 sm:pt-4Ы min-w-0 transition-all duration-300">
           {children}
         </main>
 
@@ -193,4 +193,4 @@ export default function Layout({ children }) {
       <LayoutInner>{children}</LayoutInner>
     </SidebarProvider>
   );
-}
+}
